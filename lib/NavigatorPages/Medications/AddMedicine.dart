@@ -21,47 +21,51 @@ class _AddMedicineState extends State<AddMedicine> {
   bool disabled = false;
   Color _color = Colors.blue;
 
-
-  Widget _nonDoseAlert(){
-      return AlertDialog(
-        titleTextStyle: TextStyle(color: Colors.teal[800],fontWeight:FontWeight.bold,fontSize: 18),
-        title: Text("Error"),
-        content: Text("Add atleast one Schedule to Submit"),
-        actions: <Widget>[
-          FlatButton(onPressed: (){
-            Navigator.pop(context);
-          }, child: Text("OK"))
-        ],
-      );
+  Widget _nonDoseAlert() {
+    return AlertDialog(
+      titleTextStyle: TextStyle(
+          color: Colors.teal[800], fontWeight: FontWeight.bold, fontSize: 18),
+      title: Text("Error"),
+      content: Text("Add atleast one Schedule to Submit"),
+      actions: <Widget>[
+        FlatButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text("OK"))
+      ],
+    );
   }
 
-  Widget _submitAlert(_numSchedules,_medicine){
-      return AlertDialog(
-        titleTextStyle: TextStyle(color: Colors.teal[800],fontWeight:FontWeight.bold,fontSize: 20),
-        title: Text("Confirm!"),
-        content: Text("$_numSchedules doses of $_medicine is Scheduled"),
-        actions: <Widget>[
-          
-                        RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(15,0,15,0),
-                                child: Text(
-                                  "Submit",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                              color: Colors.teal[800],
-                              onPressed: (){
-                                Navigator.popUntil(context, ModalRoute.withName('/navigator'));
-                              },
-                              ),
-        ],
-      );
+  Widget _submitAlert(_numSchedules, _medicine) {
+    String dnum = _numSchedules == 1 ? "dose" : "doses";
+    return AlertDialog(
+      titleTextStyle: TextStyle(
+          color: Colors.teal[800], fontWeight: FontWeight.bold, fontSize: 20),
+      title: Text("Confirm!"),
+      content: Text("Submit to Schedule $_numSchedules $dnum of $_medicine."),
+      actions: <Widget>[
+        RaisedButton(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+            child: Text(
+              "Submit",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+              ),
+            ),
+          ),
+          color: Colors.teal[800],
+          onPressed: () {
+            print(_medicineScheduleMap);
+            Navigator.popUntil(context, ModalRoute.withName('/navigator'));
+          },
+        ),
+      ],
+    );
   }
 
   Widget _buttonAddDose() {
@@ -82,18 +86,21 @@ class _AddMedicineState extends State<AddMedicine> {
               if (_formKeyaddMedi.currentState.validate()) {
                 if (_scheduleMap.length != 0) {
                   _formKeyaddMedi.currentState.save();
-                  showDialog(context: context,
-                    builder:(_)=>_submitAlert(_scheduleMap.length,_medicine),
-                    barrierDismissible: false);
+                  showDialog(
+                      context: context,
+                      builder: (_) =>
+                          _submitAlert(_scheduleMap.length, _medicine),
+                      barrierDismissible: true);
                   /*Scaffold.of(context).showSnackBar(SnackBar(
                       content: Text(
                           "${_scheduleMap.length} Doses of $_medicine Scheduled")));*/
                   //Navigator.pop(context);
                   _color = Colors.blue;
                 } else {
-                  showDialog(context: context,
-                    builder:(_)=>_nonDoseAlert(),
-                    barrierDismissible: false);
+                  showDialog(
+                      context: context,
+                      builder: (_) => _nonDoseAlert(),
+                      barrierDismissible: false);
                 }
               }
             }));
@@ -164,7 +171,11 @@ class _AddMedicineState extends State<AddMedicine> {
                                             backgroundColor: Colors.brown[50]),
                                         onConfirm: (time) {
                                       setState(() {
-                                        __time = "${time.hour}:${time.minute}";
+                                        String min =
+                                            (time.minute.toString().length == 1)
+                                                ? ("0" + time.minute.toString())
+                                                : time.minute.toString();
+                                        __time = "${time.hour}: $min";
                                         _color = Colors.blue;
                                       });
                                     }, currentTime: DateTime.now());

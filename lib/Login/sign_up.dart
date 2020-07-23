@@ -6,24 +6,28 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  Map signupdata={'agreement':null};
+  Map signupdata = {'agreement': null};
   bool checkboxValue = false;
   bool _checkboxValue = false;
   TextEditingController _passwordfield = TextEditingController();
   final _signupForm = GlobalKey<FormState>();
   String _text;
 
-  Widget _registerAlert(){
-      return AlertDialog(
-        titleTextStyle: TextStyle(color: Colors.teal[600],fontWeight:FontWeight.bold,fontSize: 18),
-        title: Text("Registration Complete"),
-        content: Text("Please verify your account by Cicking on the link in the email that we just sent to you"),
-        actions: <Widget>[
-          FlatButton(onPressed: (){
-            Navigator.popUntil(context,ModalRoute.withName('/login'));
-          }, child: Text("OK"))
-        ],
-      );
+  Widget _registerAlert() {
+    return AlertDialog(
+      titleTextStyle: TextStyle(
+          color: Colors.teal[600], fontWeight: FontWeight.bold, fontSize: 18),
+      title: Text("Registration Complete"),
+      content: Text(
+          "Please verify your account by Cicking on the link in the email that we just sent to you"),
+      actions: <Widget>[
+        FlatButton(
+            onPressed: () {
+              Navigator.popUntil(context, ModalRoute.withName('/login'));
+            },
+            child: Text("OK"))
+      ],
+    );
   }
 
   @override
@@ -51,12 +55,18 @@ class _SignUpState extends State<SignUp> {
                 children: <Widget>[
                   SizedBox(height: 70),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(30,0,0,0),
-                    child: Text("Register",style: TextStyle(color: Colors.white, fontSize: 40),),
+                    padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+                    child: Text(
+                      "Register",
+                      style: TextStyle(color: Colors.white, fontSize: 40),
+                    ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(30,0,0,30),
-                    child: Text("Pill-D Medical Dispenser",style: TextStyle(color: Colors.white, fontSize: 18),),
+                    padding: const EdgeInsets.fromLTRB(30, 0, 0, 30),
+                    child: Text(
+                      "Pill-D Medical Dispenser",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
                   ),
                   Container(
                     decoration: BoxDecoration(
@@ -89,8 +99,8 @@ class _SignUpState extends State<SignUp> {
                                             return "Required";
                                           }
                                         },
-                                        onSaved: (value){
-                                          signupdata['first name']=value;
+                                        onSaved: (value) {
+                                          signupdata['first name'] = value;
                                         },
                                         decoration: InputDecoration(
                                           contentPadding:
@@ -110,8 +120,8 @@ class _SignUpState extends State<SignUp> {
                                             return "Required";
                                           }
                                         },
-                                        onSaved: (value){
-                                          signupdata['last name']=value;
+                                        onSaved: (value) {
+                                          signupdata['last name'] = value;
                                         },
                                         decoration: InputDecoration(
                                           contentPadding:
@@ -128,16 +138,17 @@ class _SignUpState extends State<SignUp> {
                                 ),
                                 TextFormField(
                                   validator: (value) {
-                                    Pattern pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+                                    Pattern pattern =
+                                        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
                                     RegExp regex = new RegExp(pattern);
                                     if (!regex.hasMatch(value))
                                       return 'Enter Valid Email';
                                     else
                                       return null;
                                   },
-                                  onSaved: (value){
-                                          signupdata['email']=value;
-                                        },
+                                  onSaved: (value) {
+                                    signupdata['email'] = value;
+                                  },
                                   decoration: InputDecoration(
                                     contentPadding:
                                         EdgeInsets.fromLTRB(15, 0, 15, 0),
@@ -150,15 +161,14 @@ class _SignUpState extends State<SignUp> {
                                 ),
                                 TextFormField(
                                   controller: _passwordfield,
-                                  
                                   validator: (value) {
                                     if (value.isEmpty) {
                                       return "Password Cannot be Empty";
                                     }
                                   },
-                                  onSaved: (value){
-                                          signupdata['password']=value;
-                                        },
+                                  onSaved: (value) {
+                                    signupdata['password'] = value;
+                                  },
                                   obscureText: true,
                                   decoration: InputDecoration(
                                     contentPadding:
@@ -190,14 +200,12 @@ class _SignUpState extends State<SignUp> {
                                 CheckboxListTile(
                                   value: checkboxValue,
                                   onChanged: (val) {
-                                    checkboxValue=!checkboxValue;
+                                    checkboxValue = !checkboxValue;
                                     setState(() {
-                                      signupdata['agreement']=val;
-                                       });
+                                      signupdata['agreement'] = val;
+                                    });
                                   },
-                                  
-                                  subtitle: 
-                                  (signupdata['agreement']==false)
+                                  subtitle: (signupdata['agreement'] == false)
                                       ? Text(
                                           'Agree with Terms and Conditions to Continue.',
                                           style: TextStyle(color: Colors.red),
@@ -212,7 +220,7 @@ class _SignUpState extends State<SignUp> {
                                   activeColor: Colors.teal,
                                 ),
                                 //Text(_text??''),
-                                
+
                                 ListTile(
                                   title: RaisedButton(
                                     padding: EdgeInsets.all(10),
@@ -231,21 +239,23 @@ class _SignUpState extends State<SignUp> {
                                       //setState(() => _isLoading = true);
                                       if (_signupForm.currentState.validate()) {
                                         if (signupdata['agreement'] == true) {
-                                          _text=null;
+                                          _text = null;
                                           setState(() {
                                             _signupForm.currentState.save();
                                             print(signupdata.toString());
                                             //send data through http request async receive submission status
-                                            showDialog(context: context,
-                                            builder:(_)=>_registerAlert(),
-                                            barrierDismissible: false);
-                                            });
+                                            showDialog(
+                                                context: context,
+                                                builder: (_) =>
+                                                    _registerAlert(),
+                                                barrierDismissible: false);
+                                          });
                                         } else {
                                           setState(() {
                                             signupdata['agreement'] = false;
-                                            _text='Agree above terms to continue ';
+                                            _text =
+                                                'Agree above terms to continue ';
                                           });
-                                          
                                         }
                                       }
                                     },
