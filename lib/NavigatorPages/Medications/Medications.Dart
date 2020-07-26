@@ -111,7 +111,6 @@ class MedicationCard extends StatefulWidget {
 class _MedicationCardState extends State<MedicationCard> {
   LoadedMedication card;
   int cardKey;
-  List<String> _schedule;
   String schState;
 
   void initState() {
@@ -126,7 +125,7 @@ class _MedicationCardState extends State<MedicationCard> {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Card(
-        color: schState == "On" ? Colors.white : Colors.grey[400],
+        color: schState == "On" ? Colors.white : Colors.blueGrey[100],
         elevation: 5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Container(

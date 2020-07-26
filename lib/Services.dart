@@ -29,7 +29,7 @@ Future<LoadedMedicationx> fetchMedications() async {
   var map = Map<String, dynamic>();
   map['action'] = 'Get_Medication';
   String _jsonresponse =
-      '[{"medicine": "Amoxillin","dose strength":200, "Schedules":[{"time":"9.00 AM","pills":1},{"time":"5.00PM","pills":2},{"time":"10.00PM","pills":2}]},{"medicine": "Flagyl","dose strength":500, "Schedules":[{"time":"10.00 AM","pills":2},{"time":"6.00PM","pills":2}]}]';
+      '[{"medicine": "Amoxillin","dose strength":200, "Schedules":[{"time":"9.00 AM","pills":1},{"time":"5.00PM","pills":2},{"time":"10.00PM","pills":2}]},{"medicine": "Flagyl","dose strength":500, "Schedules":[{"time":"10.00 AM","pills":2},{"time":"6.00PM","pills":2}]},{"medicine": "Paracetamol","dose strength":150, "Schedules":[{"time":"11.00 AM","pills":1},{"time":"3.00PM","pills":1}]}]';
   final jsonresponse = json.decode(_jsonresponse);
   LoadedMedicationx medications = LoadedMedicationx.fromJson(jsonresponse);
   /*print(medications.toString());
