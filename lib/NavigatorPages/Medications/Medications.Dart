@@ -10,10 +10,12 @@ class Medications extends StatefulWidget {
 
 class _MedicationsState extends State<Medications> {
   Future<LoadedMedicationx> medicationtable;
-
+  bool isSwitched = false; //get val from server
+  String schState;
   void initState() {
     super.initState();
     medicationtable = fetchMedications();
+    schState = isSwitched ? "On" : "Off";
   }
 
   @override
@@ -36,31 +38,61 @@ class _MedicationsState extends State<Medications> {
           backgroundColor: Colors.teal,
           title: Text('Medications'),
         ),
-        body: FutureBuilder<LoadedMedicationx>(
-            future: medicationtable,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return SingleChildScrollView(
-                  child: Column(
-                      children: snapshot.data.loadedMedication
-                          .asMap()
-                          .map((keys, f) {
-                            //when defined .asmap, indeces can be added to a list
-                            return MapEntry(
-                                keys,
-                                MedicationCard(
-                                  cardDetails: f,
-                                  cardKey: keys,
-                                ));
-                          })
-                          .values
-                          .toList()),
-                ); //.values required as we take out only the values from asmap option
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              }
-              return CircularProgressIndicator();
-            }));
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      "Schedules Turned $schState",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    Switch(
+                      value: isSwitched,
+                      onChanged: (value) {
+                        setState(() {
+                          isSwitched = value;
+                          schState = isSwitched ? "On" : "Off";
+                          print("Schedules $schState");
+                        });
+                      },
+                      activeColor: Colors.teal,
+                    ),
+                  ],
+                ),
+              ),
+              FutureBuilder<LoadedMedicationx>(
+                  future: medicationtable,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return SingleChildScrollView(
+                        child: Column(
+                            children: snapshot.data.loadedMedication
+                                .asMap()
+                                .map((keys, f) {
+                                  //when defined .asmap, indeces can be added to a list
+                                  return MapEntry(
+                                      keys,
+                                      MedicationCard(
+                                        cardDetails: f,
+                                        cardKey: keys,
+                                        schState: schState,
+                                      ));
+                                })
+                                .values
+                                .toList()),
+                      ); //.values required as we take out only the values from asmap option
+                    } else if (snapshot.hasError) {
+                      return Text("${snapshot.error}");
+                    }
+                    return CircularProgressIndicator();
+                  }),
+            ],
+          ),
+        ));
   }
 }
 
@@ -68,7 +100,8 @@ class _MedicationsState extends State<Medications> {
 class MedicationCard extends StatefulWidget {
   final LoadedMedication cardDetails;
   final int cardKey;
-  const MedicationCard({Key key, this.cardDetails, this.cardKey})
+  final String schState;
+  const MedicationCard({Key key, this.cardDetails, this.cardKey, this.schState})
       : super(key: key);
 
   @override
@@ -79,6 +112,7 @@ class _MedicationCardState extends State<MedicationCard> {
   LoadedMedication card;
   int cardKey;
   List<String> _schedule;
+  String schState;
 
   void initState() {
     card = widget.cardDetails;
@@ -88,9 +122,11 @@ class _MedicationCardState extends State<MedicationCard> {
 
   @override
   Widget build(BuildContext context) {
+    schState = widget.schState;
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Card(
+        color: schState == "On" ? Colors.white : Colors.grey[400],
         elevation: 5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Container(
@@ -103,7 +139,8 @@ class _MedicationCardState extends State<MedicationCard> {
                   Text(
                     card.medicine,
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.teal),
+                        fontWeight: FontWeight.bold,
+                        color: schState == "On" ? Colors.teal : Colors.black),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -131,42 +168,32 @@ class _MedicationCardState extends State<MedicationCard> {
                       DataCell(Text(f.pills.toString()))
                     ]);
                   }).toList()),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ButtonBar(
+                buttonHeight: 12,
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Text("    Schedule State"),
-                      Switch(value: true, onChanged: null),
-                    ],
-                  ),
-                  ButtonBar(
-                    buttonHeight: 12,
-                    children: <Widget>[
-                      IconButton(
-                          icon: Icon(
-                            Icons.edit,
-                            color: Colors.teal,
-                          ),
-                          onPressed: () {
-                            print(
-                                "should Edit ${card.medicine} mecidicine from database");
-                          }),
-                      IconButton(
-                          icon: Icon(
-                            Icons.delete_outline,
-                            color: Colors.teal,
-                          ),
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                builder: (_) =>
-                                    _deleteAlert(card.medicine, context),
-                                barrierDismissible: false);
-                            setState(() {});
-                          }),
-                    ],
-                  ),
+                  IconButton(
+                      icon: Icon(
+                        Icons.edit,
+                        color: schState == "On" ? Colors.teal : Colors.black,
+                      ),
+                      onPressed: () {
+                        print(
+                            "should Edit ${card.medicine} mecidicine from database");
+                        //Navigator.of(context).pushNamed('/EditMedicine');
+                      }),
+                  IconButton(
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: schState == "On" ? Colors.teal : Colors.black,
+                      ),
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) =>
+                                _deleteAlert(card.medicine, context),
+                            barrierDismissible: false);
+                        setState(() {});
+                      }),
                 ],
               ),
             ],

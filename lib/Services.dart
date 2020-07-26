@@ -1,36 +1,37 @@
 import 'dart:convert';
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
 
-
-
-
-Future<MedicinetableHome> fetchtable() async{
+Future<MedicinetableHome> fetchtable() async {
   var map = Map<String, dynamic>();
-  map['action']='Get_ALL';
+  map['action'] = 'Get_ALL';
   //final response =await http.post('http://192.168.137.1/phplessons/flutter.php',body: map);
   //print(response.body.toString());
-  String jsonresponse='[{"medicine": "amoxillin","numpills":4, "receivetime":"1 AM", "state":"true"},{"medicine": "amoxilin","numpills":3, "receivetime":"12 AM", "state":"false"},{"medicine": "Flagyl","numpills":1, "receivetime":"3 PM", "state":"false"}]';
-  final jsonResponse=json.decode(jsonresponse);
+  String jsonresponse =
+      '[{"medicine": "amoxillin","numpills":4, "receivetime":"1 AM", "state":"true"},{"medicine": "amoxilin","numpills":3, "receivetime":"12 AM", "state":"false"},{"medicine": "Flagyl","numpills":1, "receivetime":"3 PM", "state":"false"}]';
+  final jsonResponse = json.decode(jsonresponse);
   //print(jsonresponse);
-  MedicinetableHome album=new MedicinetableHome.fromJson(jsonResponse);
+  MedicinetableHome album = new MedicinetableHome.fromJson(jsonResponse);
   //print(album.hometable[1].medicine);
-  return(album);
-
+  return (album);
 }
 
-
-editPatient(String salutation,String firstName,String lastName){
-  Map<String,dynamic> map={'action':'Update_Patient','salutation':salutation,'firstName':firstName,'lastName':lastName};
+editPatient(String salutation, String firstName, String lastName) {
+  Map<String, dynamic> map = {
+    'action': 'Update_Patient',
+    'salutation': salutation,
+    'firstName': firstName,
+    'lastName': lastName
+  };
   //final response=await http.post('url',body:map);
-
 }
 
-Future<LoadedMedicationx> fetchMedications()async{
+Future<LoadedMedicationx> fetchMedications() async {
   var map = Map<String, dynamic>();
-  map['action']='Get_Medication';
-  String _jsonresponse='[{"medicine": "Amoxillin","dose strength":200, "Schedules":[{"time":"9.00 AM","pills":1},{"time":"5.00PM","pills":2}]},{"medicine": "Flagyl","dose strength":500, "Schedules":[{"time":"10.00 AM","pills":2},{"time":"6.00PM","pills":2}]}]';
-  final jsonresponse=json.decode(_jsonresponse);
-  LoadedMedicationx medications=LoadedMedicationx.fromJson(jsonresponse);
+  map['action'] = 'Get_Medication';
+  String _jsonresponse =
+      '[{"medicine": "Amoxillin","dose strength":200, "Schedules":[{"time":"9.00 AM","pills":1},{"time":"5.00PM","pills":2},{"time":"10.00PM","pills":2}]},{"medicine": "Flagyl","dose strength":500, "Schedules":[{"time":"10.00 AM","pills":2},{"time":"6.00PM","pills":2}]}]';
+  final jsonresponse = json.decode(_jsonresponse);
+  LoadedMedicationx medications = LoadedMedicationx.fromJson(jsonresponse);
   /*print(medications.toString());
   print(medications.loadedMedication.toString());
   print(medications.loadedMedication[0].medicine);
@@ -86,18 +87,15 @@ class Schedules {
   }
 }
 
-
-class LoadedMedicationx{
+class LoadedMedicationx {
   final List<LoadedMedication> loadedMedication;
   LoadedMedicationx({this.loadedMedication});
 
-  factory LoadedMedicationx.fromJson(List<dynamic>json){
-    List<LoadedMedication> _templist= new List<LoadedMedication>();
-    _templist=json.map((f)=>LoadedMedication.fromJson(f)).toList();
-    return LoadedMedicationx(
-      loadedMedication: _templist);
+  factory LoadedMedicationx.fromJson(List<dynamic> json) {
+    List<LoadedMedication> _templist = new List<LoadedMedication>();
+    _templist = json.map((f) => LoadedMedication.fromJson(f)).toList();
+    return LoadedMedicationx(loadedMedication: _templist);
   }
-
 }
 /*
 class Medicine{
@@ -147,45 +145,31 @@ class Schedules{
   }
 }*/
 
-
-
-
-
-
-
-
-
-
-
-class MedicinetableHome{
+class MedicinetableHome {
   final List<Medicineloader> hometable;
 
   MedicinetableHome({this.hometable});
 
-  factory MedicinetableHome.fromJson(List<dynamic>jsons){
-    List <Medicineloader>_temptable = new List<Medicineloader>();
-    _temptable=jsons.map((i)=>Medicineloader.fromJson(i)).toList();
-    return MedicinetableHome(
-      hometable: _temptable);
+  factory MedicinetableHome.fromJson(List<dynamic> jsons) {
+    List<Medicineloader> _temptable = new List<Medicineloader>();
+    _temptable = jsons.map((i) => Medicineloader.fromJson(i)).toList();
+    return MedicinetableHome(hometable: _temptable);
   }
-
 }
 
-class Medicineloader{
+class Medicineloader {
   final String medicine;
   final String numpills;
   final String receivetime;
   final String state;
-  
-  Medicineloader({this.medicine,this.numpills,this.receivetime,this.state});
 
-  factory Medicineloader.fromJson(Map<String,dynamic>json){
+  Medicineloader({this.medicine, this.numpills, this.receivetime, this.state});
+
+  factory Medicineloader.fromJson(Map<String, dynamic> json) {
     return Medicineloader(
-      medicine:json['medicine'],
-      numpills: json['numpills'].toString(),
-      receivetime: json['receivetime'],
-      state: (json['state']=='true')?'taken':'not taken'
-
-    );
+        medicine: json['medicine'],
+        numpills: json['numpills'].toString(),
+        receivetime: json['receivetime'],
+        state: (json['state'] == 'true') ? 'taken' : 'not taken');
   }
 }
