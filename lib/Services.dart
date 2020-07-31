@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+//========== Generating Home Table ===============
+
 Future<MedicinetableHome> fetchtable() async {
   var map = Map<String, dynamic>();
   map['action'] = 'Get_ALL';
@@ -15,6 +17,37 @@ Future<MedicinetableHome> fetchtable() async {
   return (album);
 }
 
+class MedicinetableHome {
+  final List<Medicineloader> hometable;
+
+  MedicinetableHome({this.hometable});
+
+  factory MedicinetableHome.fromJson(List<dynamic> jsons) {
+    List<Medicineloader> _temptable = new List<Medicineloader>();
+    _temptable = jsons.map((i) => Medicineloader.fromJson(i)).toList();
+    return MedicinetableHome(hometable: _temptable);
+  }
+}
+
+class Medicineloader {
+  final String medicine;
+  final String numpills;
+  final String receivetime;
+  final String state;
+
+  Medicineloader({this.medicine, this.numpills, this.receivetime, this.state});
+
+  factory Medicineloader.fromJson(Map<String, dynamic> json) {
+    return Medicineloader(
+        medicine: json['medicine'],
+        numpills: json['numpills'].toString(),
+        receivetime: json['receivetime'],
+        state: (json['state'] == 'true') ? 'taken' : 'not taken');
+  }
+}
+
+//=============================================================
+
 editPatient(String salutation, String firstName, String lastName) {
   Map<String, dynamic> map = {
     'action': 'Update_Patient',
@@ -25,7 +58,10 @@ editPatient(String salutation, String firstName, String lastName) {
   //final response=await http.post('url',body:map);
 }
 
+//========== Generating Medicine Cards ===============
+
 Future<LoadedMedicationx> fetchMedications() async {
+  await Future.delayed(Duration(seconds: 2)); //for testing
   var map = Map<String, dynamic>();
   map['action'] = 'Get_Medication';
   String _jsonresponse =
@@ -37,6 +73,17 @@ Future<LoadedMedicationx> fetchMedications() async {
   print(medications.loadedMedication[0].medicine);
   print(medications.loadedMedication[1].schedules[0].time.toString());*/
   return medications;
+}
+
+class LoadedMedicationx {
+  final List<LoadedMedication> loadedMedication;
+  LoadedMedicationx({this.loadedMedication});
+
+  factory LoadedMedicationx.fromJson(List<dynamic> json) {
+    List<LoadedMedication> _templist = new List<LoadedMedication>();
+    _templist = json.map((f) => LoadedMedication.fromJson(f)).toList();
+    return LoadedMedicationx(loadedMedication: _templist);
+  }
 }
 
 class LoadedMedication {
@@ -87,16 +134,7 @@ class Schedules {
   }
 }
 
-class LoadedMedicationx {
-  final List<LoadedMedication> loadedMedication;
-  LoadedMedicationx({this.loadedMedication});
-
-  factory LoadedMedicationx.fromJson(List<dynamic> json) {
-    List<LoadedMedication> _templist = new List<LoadedMedication>();
-    _templist = json.map((f) => LoadedMedication.fromJson(f)).toList();
-    return LoadedMedicationx(loadedMedication: _templist);
-  }
-}
+//===================================================================
 /*
 class Medicine{
   final String medicine;
@@ -144,35 +182,6 @@ class Schedules{
     );
   }
 }*/
-
-class MedicinetableHome {
-  final List<Medicineloader> hometable;
-
-  MedicinetableHome({this.hometable});
-
-  factory MedicinetableHome.fromJson(List<dynamic> jsons) {
-    List<Medicineloader> _temptable = new List<Medicineloader>();
-    _temptable = jsons.map((i) => Medicineloader.fromJson(i)).toList();
-    return MedicinetableHome(hometable: _temptable);
-  }
-}
-
-class Medicineloader {
-  final String medicine;
-  final String numpills;
-  final String receivetime;
-  final String state;
-
-  Medicineloader({this.medicine, this.numpills, this.receivetime, this.state});
-
-  factory Medicineloader.fromJson(Map<String, dynamic> json) {
-    return Medicineloader(
-        medicine: json['medicine'],
-        numpills: json['numpills'].toString(),
-        receivetime: json['receivetime'],
-        state: (json['state'] == 'true') ? 'taken' : 'not taken');
-  }
-}
 
 //=======To Verify the Pill dispenser by QR Scanning======
 Future<DeviceVerifier> registerDevice(deviceId) async {

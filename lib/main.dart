@@ -4,17 +4,17 @@ import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 import 'package:pill_dispensor/Login/sign_up.dart';
 import 'package:pill_dispensor/NavigatorPages/Home.dart';
 import 'package:pill_dispensor/NavigatorPages/Settings/Settings.dart';
-//import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:pill_dispensor/NavigatorPages/Settings/EditPatient.dart';
 import 'package:pill_dispensor/NavigatorPages/Medications/AddMedicine.dart';
 import 'package:pill_dispensor/NavigatorPages/Medications/medications.dart';
-import 'package:pill_dispensor/NavigatorPages/Medications/EditMedicine.dart';
 import 'package:pill_dispensor/Login/login.dart';
 import 'package:pill_dispensor/NavigatorPages/Adherence.dart';
 import 'package:pill_dispensor/NavigatorPages/Settings/QrScanner.dart';
 
 void main() => runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(accentColor: Colors.teal),
       home: Login(),
       initialRoute: '/navigator',
       routes: {
@@ -26,7 +26,6 @@ void main() => runApp(MaterialApp(
         '/EditPatient': (context) => new EditPatient(),
         '/AddMedicine': (context) => new AddMedicine(),
         '/medications': (context) => Medications(),
-        '/EditMedicine': (context) => EditMedicine(),
         '/QRscan': (context) => QrScanner(),
       },
     ));
@@ -58,12 +57,13 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: _children[
-            _currentIndex], //set to index 3 initially to show Home page
-        bottomNavigationBar: FancyBottomNavigation(
+      body:
+          _children[_currentIndex], //set to index 3 initially to show Home page
+      bottomNavigationBar:
+          /*FancyBottomNavigation(
           initialSelection: _initialSelection,
           circleColor: Colors.white,
-          barBackgroundColor: Colors.teal[800],
+          barBackgroundColor: Colors.teal,
           inactiveIconColor: Colors.white,
           activeIconColor: Colors.teal[900],
           tabs: [
@@ -77,8 +77,8 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
               _currentIndex = position;
             });
           },
-        )
-        /*CurvedNavigationBar(
+        )*/
+          CurvedNavigationBar(
         backgroundColor: Colors.white,
         index: 3, //initial index
         color: Colors.teal,
@@ -113,7 +113,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
 
           //Handle button tap
         },
-      ),*/
-        );
+      ),
+    );
   }
 }

@@ -46,17 +46,17 @@ class Settings extends StatelessWidget {
             ),
             Card(
               child: ListTile(
-                leading: Icon(Icons.blur_linear),
-                title: Text('About'),
-                trailing: Icon(Icons.more_vert),
-              ),
-            ),
-            Card(
-              child: ListTile(
                 leading: Icon(Icons.scanner),
                 title: Text('Device Scanner'),
                 trailing: Icon(Icons.more_vert),
                 onTap: () => Navigator.of(context).pushNamed('/QRscan'),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.blur_linear),
+                title: Text('About'),
+                trailing: Icon(Icons.more_vert),
               ),
             ),
           ],
