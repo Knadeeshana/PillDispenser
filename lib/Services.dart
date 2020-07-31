@@ -173,3 +173,30 @@ class Medicineloader {
         state: (json['state'] == 'true') ? 'taken' : 'not taken');
   }
 }
+
+//=======To Verify the Pill dispenser by QR Scanning======
+Future<DeviceVerifier> registerDevice(deviceId) async {
+  var map = Map<String, dynamic>();
+  map['action'] = 'REGISTER DEVICE';
+  map['device_id'] = deviceId;
+  //final response =await http.post('http://192.168.137.1/phplessons/flutter.php',body: map);
+  //print(response.body.toString());
+  String jsonresponse = '[{"deviceStatus": "verified"}]';
+  final jsonResponse = json.decode(jsonresponse);
+  DeviceVerifier status = new DeviceVerifier.fromJson(jsonResponse[0]);
+  //print(album.hometable[1].medicine);
+  print(status.deviceStatus);
+  return (status);
+}
+
+class DeviceVerifier {
+  final String deviceStatus;
+
+  DeviceVerifier({this.deviceStatus});
+
+  factory DeviceVerifier.fromJson(Map<String, dynamic> json) {
+    //print("hi");
+    return DeviceVerifier(deviceStatus: json['deviceStatus']);
+  }
+}
+//============================================================
