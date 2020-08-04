@@ -8,7 +8,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  bool _previousDosesTap = false;
 //function to call to change the data in the table based on the date change in date picker
   void changetable(date) {
     MedicineTable instance;

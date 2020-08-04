@@ -9,7 +9,7 @@ import 'package:pill_dispensor/NavigatorPages/Settings/EditPatient.dart';
 import 'package:pill_dispensor/NavigatorPages/Medications/AddMedicine.dart';
 import 'package:pill_dispensor/NavigatorPages/Medications/medications.dart';
 import 'package:pill_dispensor/Login/login.dart';
-import 'package:pill_dispensor/NavigatorPages/Adherence.dart';
+import 'package:pill_dispensor/NavigatorPages/Adherence/Adherence.dart';
 import 'package:pill_dispensor/NavigatorPages/Settings/QrScanner.dart';
 
 void main() => runApp(MaterialApp(
