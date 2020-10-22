@@ -10,13 +10,14 @@ class Medications extends StatefulWidget {
 }
 
 class _MedicationsState extends State<Medications> {
-  Future<LoadedMedicationx> medicationtable;
-  bool isSwitched = true; //get val from server
+  Future<LoadedMedication> medicationtable;
+  bool scheduleState = true; //get val from server
   String schState;
   void initState() {
     super.initState();
     medicationtable = fetchMedications();
-    schState = isSwitched ? "On" : "Off";
+    print(medicationtable.toString());
+    schState = scheduleState ? "On" : "Off";
   }
 
   Widget _scheduleStatusChange(value) {
@@ -25,7 +26,7 @@ class _MedicationsState extends State<Medications> {
           color: Colors.teal[800], fontWeight: FontWeight.bold, fontSize: 20),
       title: Text("Alert!"),
       content: Text(
-        "Do you want to Turn ${isSwitched ? "Off" : "On"} the Medicine Schedules ?",
+        "Do you want to Turn ${schState == "On" ? "Off" : "On"} the Medicine Schedules ?",
         textAlign: TextAlign.center,
       ),
       actions: <Widget>[
@@ -62,8 +63,8 @@ class _MedicationsState extends State<Medications> {
           ),
           color: Colors.teal[800],
           onPressed: () {
-            isSwitched = value;
-            print("changed to ${isSwitched ? "On" : "Off"} ");
+            scheduleState = value;
+            print("changed to ${schState == "Off" ? "On" : "Off"} ");
             Navigator.pop(context);
           },
         ),
@@ -95,69 +96,75 @@ class _MedicationsState extends State<Medications> {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "Schedules Turned $schState",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    Switch(
-                      value: isSwitched,
-                      onChanged: (value) {
-                        showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return _scheduleStatusChange(value);
-                                },
-                                barrierDismissible: false)
-                            .then((value) {
-                          setState(() {
-                            schState = isSwitched ? "On" : "Off";
-                            print("Schedules $schState");
-                          });
-                        });
-                      },
-                      activeColor: Colors.teal,
-                    ),
-                  ],
-                ),
-              ),
-              Center(
-                child: FutureBuilder<LoadedMedicationx>(
-                    future: medicationtable,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return SingleChildScrollView(
-                          child: Column(
-                              children: snapshot.data.loadedMedication
-                                  .asMap()
-                                  .map((keys, f) {
-                                    //when defined .asmap, indeces can be added to a list
-                                    return MapEntry(
-                                        keys,
-                                        MedicationCard(
-                                          cardDetails: f,
-                                          cardKey: keys,
-                                          schState: schState,
-                                        ));
-                                  })
-                                  .values
-                                  .toList()),
-                        ); //.values required as we take out only the values from asmap option
-                      } else if (snapshot.hasError) {
-                        return Text("${snapshot.error}");
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 5,
+              FutureBuilder<LoadedMedication>(
+                  future: medicationtable,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      schState = (snapshot.data.scheduleState) ? "On" : "Off";
+                      return SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(
+                                    "Schedules Turned $schState",
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                  Switch(
+                                    value: (snapshot.data.scheduleState)
+                                        ? true
+                                        : false,
+                                    onChanged: (value) {
+                                      showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return _scheduleStatusChange(
+                                                    value);
+                                              },
+                                              barrierDismissible: false)
+                                          .then((value) {
+                                        setState(() {
+                                          //schState = isSwitched ? "On" : "Off";
+                                          print("Schedules $schState");
+                                        });
+                                      });
+                                    },
+                                    activeColor: Colors.teal,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                                children: snapshot.data.compartments
+                                    .asMap()
+                                    .map((keys, f) {
+                                      //when defined .asmap, indeces can be added to a list
+                                      return MapEntry(
+                                          keys,
+                                          MedicationCard(
+                                            cardDetails: f,
+                                            cardKey: keys,
+                                            schState: schState,
+                                          ));
+                                    })
+                                    .values
+                                    .toList()),
+                          ],
                         ),
-                      );
-                    }),
-              ),
+                      ); //.values required as we take out only the values from asmap option
+                    } else if (snapshot.hasError) {
+                      return Text("${snapshot.error}");
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 5,
+                      ),
+                    );
+                  }),
             ],
           ),
         ));

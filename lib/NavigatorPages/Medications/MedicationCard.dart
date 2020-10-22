@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pill_dispensor/Services.dart';
 
 class MedicationCard extends StatefulWidget {
-  final LoadedMedication cardDetails;
+  final Compartment cardDetails;
   final int cardKey;
   final String schState;
   const MedicationCard({Key key, this.cardDetails, this.cardKey, this.schState})
@@ -13,7 +13,7 @@ class MedicationCard extends StatefulWidget {
 }
 
 class _MedicationCardState extends State<MedicationCard> {
-  LoadedMedication card;
+  Compartment card;
   int cardKey;
   String schState;
 
@@ -107,8 +107,7 @@ class _MedicationCardState extends State<MedicationCard> {
                       ),
                       Padding(
                         padding: EdgeInsets.fromLTRB(0, 0, 15, 0),
-                        child: Text(card.doseStrength.toString(),
-                            style: TextStyle()),
+                        child: Text(card.dose.toString(), style: TextStyle()),
                       )
                     ],
                   )
@@ -120,17 +119,27 @@ class _MedicationCardState extends State<MedicationCard> {
                 endIndent: 10,
               ),
               DataTable(
-                  dataRowHeight: 20,
-                  columns: [
-                    DataColumn(label: Text("Schedule Time")),
-                    DataColumn(label: Text("No. of Pills")),
-                  ],
-                  rows: card.schedules.map((f) {
+                dataRowHeight: 20,
+                columns: [
+                  DataColumn(label: Text("Schedule Time")),
+                  DataColumn(label: Text("No. of Pills")),
+                ],
+                rows: [
+                  for (var i = 1; i <= (card.schedules.length) / 6; i++)
+                    DataRow(cells: [
+                      DataCell(Text(timeConverter(card.schedules
+                          .substring((i - 1) * 6, (i - 1) * 6 + 4)))),
+                      DataCell(Text(card.schedules
+                          .substring((i - 1) * 6 + 4, (i - 1) * 6 + 6)))
+                    ])
+                ],
+                /*rows: card.schedules.map((f) {
                     return DataRow(cells: [
                       DataCell(Text(f.time)),
                       DataCell(Text(f.pills.toString()))
                     ]);
-                  }).toList()),
+                  }).toList()*/
+              ),
               Container(
                 margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
                 decoration: BoxDecoration(

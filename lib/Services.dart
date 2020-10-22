@@ -5,16 +5,16 @@ import 'package:http/http.dart' as http;
 
 Future<MedicinetableHome> fetchtable() async {
   var map = Map<String, dynamic>();
-  map['action'] = 'Get_ALL';
-  //final response =await http.post('http://192.168.137.1/phplessons/flutter.php',body: map);
-  //print(response.body.toString());
-  String jsonresponse =
+  //map['deviceid'] = '456578';
+  final response = await http.get('http://192.248.10.68:8081/bakabaka/info');
+  print(response.body.toString());
+  /*String jsonresponse =
       '[{"medicine": "amoxillin","numpills":4, "receivetime":"1 AM", "state":"true"},{"medicine": "amoxilin","numpills":3, "receivetime":"12 AM", "state":"false"},{"medicine": "Flagyl","numpills":1, "receivetime":"3 PM", "state":"false"}]';
   final jsonResponse = json.decode(jsonresponse);
   //print(jsonresponse);
   MedicinetableHome album = new MedicinetableHome.fromJson(jsonResponse);
   //print(album.hometable[1].medicine);
-  return (album);
+  return (album);*/
 }
 
 class MedicinetableHome {
@@ -56,81 +56,72 @@ editPatient(String salutation, String firstName, String lastName) {
     'lastName': lastName
   };
   //final response=await http.post('url',body:map);
+  //String _jsonresponse ='[{"salutation":"Mr.","firstname":"Gevindu","lastname":"wickramaarachchi"}]';
 }
 
 //========== Generating Medicine Cards ===============
 
-Future<LoadedMedicationx> fetchMedications() async {
-  await Future.delayed(Duration(seconds: 2)); //for testing
-  var map = Map<String, dynamic>();
-  map['action'] = 'Get_Medication';
-  String _jsonresponse =
+Future<LoadedMedication> fetchMedications() async {
+  /*var map = Map<String, dynamic>();
+  map['deviceid'] = '456578';
+  final _jsonresponse =
+      await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
+  print(_jsonresponse.body.toString());
+*/
+  //await Future.delayed(Duration(seconds: 2)); //for testing
+  /*String _jsonresponse =
       '[{"medicine": "Amoxillin","dose strength":200, "Schedules":[{"time":"9.00 AM","pills":1},{"time":"5.00PM","pills":2},{"time":"10.00PM","pills":2}]},{"medicine": "Flagyl","dose strength":500, "Schedules":[{"time":"10.00 AM","pills":2},{"time":"6.00PM","pills":2}]},{"medicine": "Paracetamol","dose strength":150, "Schedules":[{"time":"11.00 AM","pills":1},{"time":"3.00PM","pills":1}]}]';
+  */
+
+  String _jsonresponse =
+      '{"deviceid":"456578","scheduleState":false,"compartments":[{ "medicine":"Amoxillin","dose":200,"schedules":"090001170001"},{ "medicine":"Gemba","dose":220,"schedules":"015010170001235903"},{"medicine":"Flagyl","dose":500,"schedules":"100002180002000000" } ]}';
+
   final jsonresponse = json.decode(_jsonresponse);
-  LoadedMedicationx medications = LoadedMedicationx.fromJson(jsonresponse);
-  /*print(medications.toString());
-  print(medications.loadedMedication.toString());
-  print(medications.loadedMedication[0].medicine);
-  print(medications.loadedMedication[1].schedules[0].time.toString());*/
+  print(jsonresponse.toString());
+  LoadedMedication medications = LoadedMedication.fromJson(jsonresponse);
+  /*LoadedMedication medications = LoadedMedication.fromJson(jsonresponse);
+  print(medications.toString());
+  print(medications.compartments[0].schedules);
+  print(medications.compartments[0].medicine);
+  print(medications.compartments[0].dose);
+  print(medications.compartments[0].medicine);
+  print(medications.compartments[1].schedules);
+*/
   return medications;
 }
 
-class LoadedMedicationx {
-  final List<LoadedMedication> loadedMedication;
-  LoadedMedicationx({this.loadedMedication});
-
-  factory LoadedMedicationx.fromJson(List<dynamic> json) {
-    List<LoadedMedication> _templist = new List<LoadedMedication>();
-    _templist = json.map((f) => LoadedMedication.fromJson(f)).toList();
-    return LoadedMedicationx(loadedMedication: _templist);
-  }
-}
-
 class LoadedMedication {
-  String medicine;
-  int doseStrength;
-  List<Schedules> schedules;
+  final String deviceid;
+  final bool scheduleState;
+  final List<Compartment> compartments;
 
-  LoadedMedication({this.medicine, this.doseStrength, this.schedules});
+  LoadedMedication({this.deviceid, this.scheduleState, this.compartments});
 
-  LoadedMedication.fromJson(Map<String, dynamic> json) {
-    medicine = json['medicine'];
-    doseStrength = json['dose strength'];
-    if (json['Schedules'] != null) {
-      schedules = new List<Schedules>();
-      json['Schedules'].forEach((v) {
-        schedules.add(new Schedules.fromJson(v));
-      });
-    }
-  }
+  factory LoadedMedication.fromJson(Map<String, dynamic> parsedJson) {
+    var list = parsedJson['compartments'] as List;
+    print(list.runtimeType);
+    List<Compartment> imagesList =
+        list.map((i) => Compartment.fromJson(i)).toList();
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['medicine'] = this.medicine;
-    data['dose strength'] = this.doseStrength;
-    if (this.schedules != null) {
-      data['Schedules'] = this.schedules.map((v) => v.toJson()).toList();
-    }
-    return data;
+    return LoadedMedication(
+        deviceid: parsedJson['deviceid'],
+        scheduleState: parsedJson['scheduleState'],
+        compartments: imagesList);
   }
 }
 
-class Schedules {
-  String time;
-  int pills;
+class Compartment {
+  final int dose;
+  final String medicine;
+  final String schedules;
 
-  Schedules({this.time, this.pills});
+  Compartment({this.dose, this.medicine, this.schedules});
 
-  Schedules.fromJson(Map<String, dynamic> json) {
-    time = json['time'];
-    pills = json['pills'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['time'] = this.time;
-    data['pills'] = this.pills;
-    return data;
+  factory Compartment.fromJson(Map<String, dynamic> parsedJson) {
+    return Compartment(
+        medicine: parsedJson['medicine'],
+        dose: parsedJson['dose'],
+        schedules: parsedJson['schedules']);
   }
 }
 
@@ -218,9 +209,9 @@ Future<AdherenceService> adherenceReport(date) async {
   //final response =await http.post('http://192.168.137.1/phplessons/flutter.php',body: map);
   //print(response.body.toString());
   String jsonresponse =
-      '{"date": "Mar 20", "missedDetail": [{ "time": "10.10 AM","missed": [ { "medicine": "amoxilin","count_m": 1}, { "medicine": "flagyl", "count_m": 3 }] }, { "time": "05:15 PM","missed": [{"medicine": "amoxilinxx","count_m": 8},{"medicine": "flagyl", "count_m": 3 },{"medicine": "xxd", "count_m": 4 } ] } ], "dispensedDetail": [{"time": "09.15 AM","dispensed": [ {"medicine": "amoxilin","count_m": 3},{"medicine": "flagyl","count_m": 3}]},{"time": "04.20 PM","dispensed": [ {"medicine": "amoxilin","count_m": 8},{"medicine": "flagyl","count_m": 3}, { "medicine": "flagyl","count_m": 3}]}]}';
+      '[{"date": "Mar 20", "missedDetail": [{ "time": "10.10 AM","missed": [ { "medicine": "amoxilin","count_m": 1}, { "medicine": "flagyl", "count_m": 3 }] }, { "time": "05:15 PM","missed": [{"medicine": "amoxilinxx","count_m": 8},{"medicine": "flagyl", "count_m": 3 },{"medicine": "xxd", "count_m": 4 } ] } ], "dispensedDetail": [{"time": "09.15 AM","dispensed": [ {"medicine": "amoxilin","count_m": 3},{"medicine": "flagyl","count_m": 3}]},{"time": "04.20 PM","dispensed": [ {"medicine": "amoxilin","count_m": 8},{"medicine": "flagyl","count_m": 3}, { "medicine": "flagyl","count_m": 3}]}]}]';
   final jsonResponse = json.decode(jsonresponse);
-  AdherenceService status = new AdherenceService.fromJson(jsonResponse);
+  AdherenceService status = new AdherenceService.fromJson(jsonResponse[0]);
   //print(album.hometable[1].medicine);
   /*print(status.date);
   print(status.missedDetail[0].time);
@@ -354,5 +345,29 @@ class Dispensed {
     data['medicine'] = this.medicine;
     data['count_m'] = this.countM;
     return data;
+  }
+}
+
+// Date conversion function ==================
+
+String timeConverter(String time) {
+  if (time == "0000")
+    return "12 MidNight";
+  else if (time == "1200")
+    return "12 Noon";
+  else if (int.parse(time) < 1200) {
+    return (time.substring(0, 2) + "." + time.substring(2) + " AM");
+  } else {
+    var temp = int.parse(time) - 1200;
+    return (temp < 1000)
+        ? ("0" +
+            temp.toString().substring(0, 1) +
+            "." +
+            temp.toString().substring(1) +
+            " PM")
+        : (temp.toString().substring(0, 2) +
+            "." +
+            temp.toString().substring(2) +
+            " PM");
   }
 }
