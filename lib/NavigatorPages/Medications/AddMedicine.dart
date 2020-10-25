@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class AddMedicine extends StatefulWidget {
+  final String medicine;
+  final String doseStrength;
+  const AddMedicine({this.medicine, this.doseStrength});
   @override
   _AddMedicineState createState() => _AddMedicineState();
 }
@@ -17,9 +20,20 @@ class _AddMedicineState extends State<AddMedicine> {
   };
   Map<dynamic, dynamic> _scheduleMap;
   String _medicine;
+  String _doseStrength;
   String _time = '';
   bool disabled = false;
   Color _color = Colors.blue;
+  bool textFieldEnable;
+
+  void initState() {
+    _medicine = widget.medicine;
+    _doseStrength = widget.doseStrength;
+    textFieldEnable =
+        (widget.medicine == "" && widget.doseStrength == "") ? true : false;
+    print((widget.medicine.isNotEmpty && widget.doseStrength.isNotEmpty));
+    super.initState();
+  }
 
   Widget _nonDoseAlert() {
     return AlertDialog(
@@ -108,6 +122,8 @@ class _AddMedicineState extends State<AddMedicine> {
 
   Widget _buildMedicine() {
     return TextFormField(
+      initialValue: _medicine,
+      enabled: textFieldEnable,
       decoration: InputDecoration(
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -127,6 +143,8 @@ class _AddMedicineState extends State<AddMedicine> {
 
   Widget _buildMedicineWeight() {
     return TextFormField(
+      initialValue: _doseStrength,
+      enabled: textFieldEnable,
       decoration: InputDecoration(
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -141,7 +159,7 @@ class _AddMedicineState extends State<AddMedicine> {
         return null;
       },
       onSaved: (value) {
-        _medicineScheduleMap['dose strength'] = value;
+        _doseStrength = _medicineScheduleMap['dose strength'] = value;
       },
     );
   }

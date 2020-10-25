@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pill_dispensor/Services.dart';
 import 'MedicationCard.dart';
+import 'AddMedicine.dart';
 
 //Problem in Json Parsing
 
@@ -81,7 +82,13 @@ class _MedicationsState extends State<Medications> {
                 padding: EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pushNamed('/AddMedicine');
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddMedicine(
+                                  medicine: "",
+                                  doseStrength: "",
+                                )));
                   },
                   child: Icon(
                     Icons.add,
@@ -158,10 +165,12 @@ class _MedicationsState extends State<Medications> {
                     } else if (snapshot.hasError) {
                       return Text("${snapshot.error}");
                     }
-                    return Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: CircularProgressIndicator(
-                        strokeWidth: 5,
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(50.0),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 5,
+                        ),
                       ),
                     );
                   }),

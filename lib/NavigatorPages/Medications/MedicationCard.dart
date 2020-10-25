@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pill_dispensor/Services.dart';
+import 'AddMedicine.dart';
 
 class MedicationCard extends StatefulWidget {
   final Compartment cardDetails;
@@ -23,13 +24,37 @@ class _MedicationCardState extends State<MedicationCard> {
     super.initState();
   }
 
+//======= Date Conversion Function ======
+
+  String timeConverter(String time) {
+    if (time == "0000")
+      return "12 MidNight";
+    else if (time == "1200")
+      return "12 Noon";
+    else if (int.parse(time) < 1200) {
+      return (time.substring(0, 2) + "." + time.substring(2) + " AM");
+    } else {
+      var temp = int.parse(time) - 1200;
+      return (temp < 1000)
+          ? ("0" +
+              temp.toString().substring(0, 1) +
+              "." +
+              temp.toString().substring(1) +
+              " PM")
+          : (temp.toString().substring(0, 2) +
+              "." +
+              temp.toString().substring(2) +
+              " PM");
+    }
+  }
+
   //confirmation alert when Delete button pressed
   Widget _deleteAlert(_medicine) {
     return AlertDialog(
       titleTextStyle: TextStyle(
           color: Colors.teal[800], fontWeight: FontWeight.bold, fontSize: 20),
       title: Text("Alert!"),
-      content: Text("Do you want to delete $_medicine schedule ?"),
+      content: Text("Do you want to Reset $_medicine schedule ?"),
       actions: <Widget>[
         OutlineButton(
           shape:
@@ -98,19 +123,37 @@ class _MedicationCardState extends State<MedicationCard> {
                           color: schState == "On" ? Colors.teal : Colors.black),
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0, 15, 15, 0),
-                        child: Text("Dose Strength"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0, 15, 10, 0),
+                            child: Text("Dose Strength"),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                            child: Text(card.dose, style: TextStyle()),
+                          )
+                        ],
                       ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0, 0, 15, 0),
-                        child: Text(card.dose.toString(), style: TextStyle()),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(5, 15, 15, 0),
+                            child: Text("Pills Storage"),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(5, 0, 15, 0),
+                            child: Text("95", style: TextStyle()),
+                          )
+                        ],
                       )
                     ],
-                  )
+                  ),
                 ],
               ),
               Divider(
@@ -154,7 +197,7 @@ class _MedicationCardState extends State<MedicationCard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     FlatButton.icon(
-                        label: Text("Delete"),
+                        label: Text("Reset Schedule"),
                         icon: Icon(
                           Icons.delete_outline,
                           color: schState == "On" ? Colors.teal : Colors.black,
@@ -164,6 +207,21 @@ class _MedicationCardState extends State<MedicationCard> {
                               context: context,
                               builder: (_) => _deleteAlert(card.medicine),
                               barrierDismissible: false);
+                        }),
+                    FlatButton.icon(
+                        label: Text("Add Schedule"),
+                        icon: Icon(
+                          Icons.remove_circle,
+                          color: schState == "On" ? Colors.teal : Colors.black,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddMedicine(
+                                        medicine: card.medicine,
+                                        doseStrength: card.dose,
+                                      )));
                         }),
                   ],
                 ),

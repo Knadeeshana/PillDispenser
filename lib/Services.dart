@@ -62,11 +62,12 @@ editPatient(String salutation, String firstName, String lastName) {
 //========== Generating Medicine Cards ===============
 
 Future<LoadedMedication> fetchMedications() async {
-  /*var map = Map<String, dynamic>();
+  var map = Map<String, dynamic>();
   map['deviceid'] = '456578';
-  final _jsonresponse =
+/*
+  final jsonresponses =
       await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
-  print(_jsonresponse.body.toString());
+  print(jsonresponses.body.toString());
 */
   //await Future.delayed(Duration(seconds: 2)); //for testing
   /*String _jsonresponse =
@@ -74,7 +75,7 @@ Future<LoadedMedication> fetchMedications() async {
   */
 
   String _jsonresponse =
-      '{"deviceid":"456578","scheduleState":false,"compartments":[{ "medicine":"Amoxillin","dose":200,"schedules":"090001170001"},{ "medicine":"Gemba","dose":220,"schedules":"015010170001235903"},{"medicine":"Flagyl","dose":500,"schedules":"100002180002000000" } ]}';
+      '{"deviceid":"456578","scheduleState":true,"compartments":[{ "medicine":"Amoxillin","dose":"200","schedules":"090001170001"},{ "medicine":"Gemba","dose":"220","schedules":"015010170001235903"},{"medicine":"Flagyl","dose":"500","schedules":"100002180002000000" } ]}';
 
   final jsonresponse = json.decode(_jsonresponse);
   print(jsonresponse.toString());
@@ -111,7 +112,7 @@ class LoadedMedication {
 }
 
 class Compartment {
-  final int dose;
+  final String dose;
   final String medicine;
   final String schedules;
 
@@ -126,53 +127,6 @@ class Compartment {
 }
 
 //===================================================================
-/*
-class Medicine{
-  final String medicine;
-  final int doseStrength;
-  final List<Schedules> schedules;
-  
-  Medicine({this.medicine,this.doseStrength,this.schedules});
-
-  factory Medicine.fromJson(Map<String,dynamic>json){
-    var list = json['schedules'] as List;
-    List<Schedules> _tempList = list.map((i) => Schedules.fromJson(i)).toList();
-
-    return Medicine(
-      medicine:json['medicine'],
-      doseStrength: json['dose strength'],
-      schedules:_tempList);
-    
-  }}*/
-/*
-class ScheduleList{
-  List<Schedules> schedules;
-  ScheduleList({this.schedules});
-
-  factory ScheduleList.fromJson(List<Schedules>json){
-    var list = json.toList();
-    List<Schedules> _tempList = list.map((i) => Schedules.fromJson(i)).toList();
-
-    return ScheduleList(
-      schedules: _tempList);
-  }
-}
-
-class Schedules{
-  final String time;
-  final int numpills;
-  
-
-  Schedules({this.numpills,this.time});
-
-  factory Schedules.fromJson(Map<String,dynamic>json){
-    return Schedules(
-      time: json['time'],
-      numpills:json['pills']
-
-    );
-  }
-}*/
 
 //=======To Verify the Pill dispenser by QR Scanning======
 Future<DeviceVerifier> registerDevice(deviceId) async {
@@ -348,26 +302,76 @@ class Dispensed {
   }
 }
 
-// Date conversion function ==================
+//========= Compartment Withdrawal Request=================
 
-String timeConverter(String time) {
-  if (time == "0000")
-    return "12 MidNight";
-  else if (time == "1200")
-    return "12 Noon";
-  else if (int.parse(time) < 1200) {
-    return (time.substring(0, 2) + "." + time.substring(2) + " AM");
-  } else {
-    var temp = int.parse(time) - 1200;
-    return (temp < 1000)
-        ? ("0" +
-            temp.toString().substring(0, 1) +
-            "." +
-            temp.toString().substring(1) +
-            " PM")
-        : (temp.toString().substring(0, 2) +
-            "." +
-            temp.toString().substring(2) +
-            " PM");
+Future<WithdrawAssist> withdrawRequest(Map map) async {
+  map['deviceid'] = '456578';
+  print(map.toString());
+/*
+  final jsonresponses =
+      await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
+  print(jsonresponses.body.toString());
+
+  //await Future.delayed(Duration(seconds: 2)); //for testing
+
+*/
+  String _jsonresponse = '{"deviceid":"456578","requestState":"success"}';
+
+  final jsonresponse = json.decode(_jsonresponse);
+  print(jsonresponse.toString());
+  WithdrawAssist request = WithdrawAssist.fromJson(jsonresponse);
+
+  return request;
+}
+
+class WithdrawAssist {
+  final String deviceid;
+  final String requestState;
+
+  WithdrawAssist({this.deviceid, this.requestState});
+
+  factory WithdrawAssist.fromJson(Map<String, dynamic> parsedJson) {
+    return WithdrawAssist(
+      deviceid: parsedJson['deviceid'],
+      requestState: parsedJson['requestState'],
+    );
+  }
+}
+
+//========= Compartment Withdrawal Completion Request =================
+
+Future<WithdrawAssistCompletion> withdrawCompletion(Map map) async {
+  map['deviceid'] = '456578';
+  print(map.toString());
+/*
+  final jsonresponses =
+      await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
+  print(jsonresponses.body.toString());
+
+  //await Future.delayed(Duration(seconds: 2)); //for testing
+
+*/
+  String _jsonresponse =
+      '{"deviceid":"456578","withdrawCompletionState":"fail"}';
+
+  final jsonresponse = json.decode(_jsonresponse);
+  print(jsonresponse.toString());
+  WithdrawAssistCompletion request =
+      WithdrawAssistCompletion.fromJson(jsonresponse);
+
+  return request;
+}
+
+class WithdrawAssistCompletion {
+  final String deviceid;
+  final String withdrawCompletionState;
+
+  WithdrawAssistCompletion({this.deviceid, this.withdrawCompletionState});
+
+  factory WithdrawAssistCompletion.fromJson(Map<String, dynamic> parsedJson) {
+    return WithdrawAssistCompletion(
+      deviceid: parsedJson['deviceid'],
+      withdrawCompletionState: parsedJson['withdrawCompletionState'],
+    );
   }
 }

@@ -11,6 +11,7 @@ import 'package:pill_dispensor/NavigatorPages/Medications/medications.dart';
 import 'package:pill_dispensor/Login/login.dart';
 import 'package:pill_dispensor/NavigatorPages/Adherence/Adherence.dart';
 import 'package:pill_dispensor/NavigatorPages/Settings/QrScanner.dart';
+import 'NavigatorPages/Settings/WithdrawCompartments.dart';
 
 void main() => runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -27,6 +28,7 @@ void main() => runApp(MaterialApp(
         '/AddMedicine': (context) => new AddMedicine(),
         '/medications': (context) => Medications(),
         '/QRscan': (context) => QrScanner(),
+        '/WithdrawCompartments': (context) => WithdrawCompartments(),
       },
     ));
 

@@ -25,6 +25,15 @@ class Settings extends StatelessWidget {
             Card(
               margin: EdgeInsets.fromLTRB(5, 10, 5, 5),
               child: ListTile(
+                leading: Icon(Icons.note_add),
+                title: Text('WIthdraw Compartments'),
+                onTap: () =>
+                    Navigator.of(context).pushNamed('/WithdrawCompartments'),
+              ),
+            ),
+            Card(
+              margin: EdgeInsets.fromLTRB(5, 10, 5, 5),
+              child: ListTile(
                 leading: Icon(Icons.people),
                 title: Text('Edit Patient Details'),
                 onTap: () => Navigator.of(context).pushNamed('/EditPatient'),
