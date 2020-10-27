@@ -16,8 +16,8 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
   List<String> users = ['Amoxillin', 'Flagyl', "Panadol"];
   final GlobalKey<FormState> _formSelectCompartment = GlobalKey<FormState>();
   final GlobalKey<FormState> _formEnterPillCount = GlobalKey<FormState>();
-  var serverCom = Map<String, dynamic>();
-  var withdrawSubmit = Map<String, dynamic>();
+  var serverCom = Map<String, String>();
+  var withdrawSubmit = Map<String, String>();
 
   @override
   Future popUpFill() {
@@ -149,7 +149,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                                     return null;
                                   },
                                   onSaved: (value) {
-                                    withdrawSubmit['pillCount'] = value;
+                                    withdrawSubmit['pill count'] = value;
                                   },
                                 ),
                               ),
@@ -179,10 +179,10 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                                       onPressed: () {
                                         if (_formEnterPillCount.currentState
                                             .validate()) {
-                                          withdrawSubmit['medicine'] =
-                                              selectedComp;
                                           withdrawSubmit['task'] =
                                               serverCom['task'];
+                                          withdrawSubmit['medicine'] =
+                                              selectedComp;
                                           _formEnterPillCount.currentState
                                               .save();
                                           withdrawCompletion(withdrawSubmit)
@@ -251,19 +251,6 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
               },
               child: Text(
                 "Withdraw Quick Medicine",
-                style: TextStyle(color: Colors.black),
-              ),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(color: Colors.teal, width: 3)),
-            ),
-            FlatButton(
-              onPressed: () {
-                serverCom['task'] = 'Replace';
-                popUpFill();
-              },
-              child: Text(
-                "Replace Medicine",
                 style: TextStyle(color: Colors.black),
               ),
               shape: RoundedRectangleBorder(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pill_dispensor/Services.dart';
 import 'AddMedicine.dart';
+import 'package:pill_dispensor/CommonFunc.dart';
 
 class MedicationCard extends StatefulWidget {
   final Compartment cardDetails;
@@ -49,7 +50,7 @@ class _MedicationCardState extends State<MedicationCard> {
   }
 
   //confirmation alert when Delete button pressed
-  Widget _deleteAlert(_medicine) {
+  Widget _resetAlert(String _medicine) {
     return AlertDialog(
       titleTextStyle: TextStyle(
           color: Colors.teal[800], fontWeight: FontWeight.bold, fontSize: 20),
@@ -89,9 +90,15 @@ class _MedicationCardState extends State<MedicationCard> {
           ),
           color: Colors.teal[800],
           onPressed: () {
-            print("$_medicine deleted");
-            Navigator.pop(context);
-            setState(() {});
+            Map<String, dynamic> tempMap = {"medicine": _medicine};
+            resetSchedule(tempMap).then((result) async {
+              successFailureDialog(context, result);
+
+              await Future.delayed(Duration(seconds: 2));
+              Navigator.popUntil(context, ModalRoute.withName('/navigator'));
+            });
+            Navigator.pop(context); //pops the behind dialog box
+            print("$_medicine reset");
           },
         ),
       ],
@@ -148,7 +155,7 @@ class _MedicationCardState extends State<MedicationCard> {
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(5, 0, 15, 0),
-                            child: Text("95", style: TextStyle()),
+                            child: Text(card.pillCount, style: TextStyle()),
                           )
                         ],
                       )
@@ -206,9 +213,11 @@ class _MedicationCardState extends State<MedicationCard> {
                         ),
                         onPressed: () {
                           showDialog(
-                              context: context,
-                              builder: (_) => _deleteAlert(card.medicine),
-                              barrierDismissible: false);
+                                  context: context,
+                                  builder: (_) => _resetAlert(card.medicine),
+                                  barrierDismissible: false)
+                              .then((value) =>
+                                  setState(() {})); //reset the medicine card
                         }),
                     FlatButton.icon(
                         label: Text("Add Schedule"),

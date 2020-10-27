@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:pill_dispensor/Services.dart';
+import 'package:pill_dispensor/CommonFunc.dart';
 
 class AddMedicine extends StatefulWidget {
   final String medicine;
@@ -18,7 +19,6 @@ class _AddMedicineState extends State<AddMedicine> {
     'medicine': null,
     'dose strength': null,
     'schedules': " ",
-    'pill count': null,
   };
   String _scheduleMap = "";
   String _medicine;
@@ -28,7 +28,7 @@ class _AddMedicineState extends State<AddMedicine> {
   Color _color = Colors.blue;
   bool textFieldEnable;
 
-  var serverCom = Map<String, dynamic>();
+  var serverCom = Map<String, String>();
   String requested;
   final GlobalKey<FormState> _formEnterPillCount = GlobalKey<FormState>();
   bool taskcompletion;
@@ -41,27 +41,10 @@ class _AddMedicineState extends State<AddMedicine> {
     super.initState();
   }
 
-  Future successFailureDialog(result) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Note'),
-            titleTextStyle: TextStyle(
-                color: Colors.teal[800],
-                fontWeight: FontWeight.bold,
-                fontSize: 18),
-            content: Text((result.processCompletionState == "success")
-                ? "Processing successful"
-                : "Server Busy. Try again"),
-          );
-        });
-  }
-
   void submitAdjustSchedule(_medicineScheduleMap) {
     Navigator.pop(context);
     modifyMedicineSchedule(_medicineScheduleMap).then((result) async {
-      successFailureDialog(result);
+      successFailureDialog(context, result);
       await Future.delayed(Duration(seconds: 2));
       Navigator.popUntil(context, ModalRoute.withName('/navigator'));
     });
@@ -372,7 +355,8 @@ class _AddMedicineState extends State<AddMedicine> {
                               color: Colors.teal[800],
                               onPressed: (requested == null)
                                   ? (() {
-                                      serverCom['task'] = "Add New";
+                                      serverCom['task'] = "add new";
+                                      print(serverCom.toString());
                                       withdrawRequest(serverCom).then((result) {
                                         setState(() {
                                           requested = result.requestState;
@@ -438,7 +422,8 @@ class _AddMedicineState extends State<AddMedicine> {
                                       return null;
                                     },
                                     onSaved: (value) {
-                                      _medicineScheduleMap['pillCount'] = value;
+                                      _medicineScheduleMap['pill count'] =
+                                          value;
                                     },
                                   ),
                                 ),
@@ -469,11 +454,12 @@ class _AddMedicineState extends State<AddMedicine> {
                                         onPressed: () {
                                           if (_formEnterPillCount.currentState
                                               .validate()) {
-                                            _medicineScheduleMap['task'] =
-                                                serverCom['task'];
+                                            //_medicineScheduleMap['task'] =
+                                            //  serverCom['task'];
 
                                             _formEnterPillCount.currentState
                                                 .save();
+
                                             addMedicationRequest(
                                                     _medicineScheduleMap)
                                                 .then((result) async {

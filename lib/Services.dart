@@ -20,18 +20,19 @@ editPatient(String salutation, String firstName, String lastName) {
 Future<LoadedMedication> fetchMedications() async {
   var map = Map<String, dynamic>();
   map['deviceid'] = deviceid;
+  map['task'] = "getAllMedicines";
 /*
   final jsonresponses =
       await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
   print(jsonresponses.body.toString());
 */
-  //await Future.delayed(Duration(seconds: 2)); //for testing
+  await Future.delayed(Duration(seconds: 2)); //for testing
   /*String _jsonresponse =
       '[{"medicine": "Amoxillin","dose strength":200, "Schedules":[{"time":"9.00 AM","pills":1},{"time":"5.00PM","pills":2},{"time":"10.00PM","pills":2}]},{"medicine": "Flagyl","dose strength":500, "Schedules":[{"time":"10.00 AM","pills":2},{"time":"6.00PM","pills":2}]},{"medicine": "Paracetamol","dose strength":150, "Schedules":[{"time":"11.00 AM","pills":1},{"time":"3.00PM","pills":1}]}]';
   */
 
   String _jsonresponse =
-      '{"deviceid":"456578","scheduleState":true,"compartments":[{ "medicine":"Amoxillin","dose":"200","schedules":"055005"},{ "medicine":"Gemba","dose":"220","schedules":"015010170001235903"},{"medicine":"Flagyl","dose":"500","schedules":"100002180002000000" } ]}';
+      '{"deviceid":"456578","scheduleState":true,"compartments":[{ "medicine":"Amoxillin","dose":"200","pill count":"50","schedules":"055005"},{ "medicine":"Panadol","dose":"220","pill count":"70","schedules":"015010170001235903"},{"medicine":"Flagyl","dose":"500","pill count":"79","schedules":"100002180002000000" } ]}';
 
   final jsonresponse = json.decode(_jsonresponse);
   print(jsonresponse.toString());
@@ -70,15 +71,17 @@ class LoadedMedication {
 class Compartment {
   final String dose;
   final String medicine;
+  final String pillCount;
   final String schedules;
 
-  Compartment({this.dose, this.medicine, this.schedules});
+  Compartment({this.dose, this.medicine, this.pillCount, this.schedules});
 
   factory Compartment.fromJson(Map<String, dynamic> parsedJson) {
     return Compartment(
         medicine: parsedJson['medicine'],
         dose: parsedJson['dose'],
-        schedules: parsedJson['schedules']);
+        schedules: parsedJson['schedules'],
+        pillCount: parsedJson['pill count']);
   }
 }
 
@@ -110,7 +113,7 @@ class DeviceVerifier {
   }
 }
 
-//============================================================
+//========To Get the Adherence report for a certain date ================
 Future<AdherenceService> adherenceReport(date) async {
   await Future.delayed(Duration(seconds: 1));
   var map = Map<String, dynamic>();
@@ -122,11 +125,6 @@ Future<AdherenceService> adherenceReport(date) async {
       '[{"date": "Mar 20", "missedDetail": [{ "time": "10.10 AM","missed": [ { "medicine": "amoxilin","count_m": 1}, { "medicine": "flagyl", "count_m": 3 }] }, { "time": "05:15 PM","missed": [{"medicine": "amoxilinxx","count_m": 8},{"medicine": "flagyl", "count_m": 3 },{"medicine": "xxd", "count_m": 4 } ] } ], "dispensedDetail": [{"time": "09.15 AM","dispensed": [ {"medicine": "amoxilin","count_m": 3},{"medicine": "flagyl","count_m": 3}]},{"time": "04.20 PM","dispensed": [ {"medicine": "amoxilin","count_m": 8},{"medicine": "flagyl","count_m": 3}, { "medicine": "flagyl","count_m": 3}]}]}]';
   final jsonResponse = json.decode(jsonresponse);
   AdherenceService status = new AdherenceService.fromJson(jsonResponse[0]);
-  //print(album.hometable[1].medicine);
-  /*print(status.date);
-  print(status.missedDetail[0].time);
-  print(status.missedDetail[0].missed[0].medicine);
-  print(status.missedDetail[0].missed[0].countM);*/
 
   return (status);
 }
@@ -260,6 +258,7 @@ class Dispensed {
 //========= Change Medicine Schedule =================
 
 Future<WithdrawAssistCompletion> modifyMedicineSchedule(Map appendmap) async {
+  print(appendmap.toString());
   var map = Map<String, String>();
   map['deviceid'] = deviceid;
   map.addAll(appendmap);
@@ -273,7 +272,7 @@ Future<WithdrawAssistCompletion> modifyMedicineSchedule(Map appendmap) async {
 
 */
   String _jsonresponse =
-      '{"deviceid":"456578","processCompletionState":"fail"}';
+      '{"deviceid":"456578","processCompletionState":"success"}';
 
   final jsonresponse = json.decode(_jsonresponse);
   print(jsonresponse.toString());
@@ -285,6 +284,7 @@ Future<WithdrawAssistCompletion> modifyMedicineSchedule(Map appendmap) async {
 
 //========= Add New Medicine =================
 Future<WithdrawAssistCompletion> addMedicationRequest(Map appendmap) async {
+  print(appendmap.toString());
   var map = Map<String, String>();
   map['deviceid'] = deviceid;
   map.addAll(appendmap);
@@ -311,8 +311,13 @@ Future<WithdrawAssistCompletion> addMedicationRequest(Map appendmap) async {
 //========= Compartment Withdrawal Request=================
 
 Future<WithdrawAssist> withdrawRequest(Map appendmap) async {
+  //to check the device status in the interactions with device. refill, add new, withdraw
+// appendmap contain "task":"add new"
+
+  print(appendmap.toString());
   var map = Map<String, String>();
   map['deviceid'] = deviceid;
+
   map.addAll(appendmap);
 /*
   final jsonresponses =
@@ -347,8 +352,10 @@ class WithdrawAssist {
 
 //========= Compartment Withdrawal Completion Request =================
 
-Future<WithdrawAssistCompletion> withdrawCompletion(Map map) async {
+Future<WithdrawAssistCompletion> withdrawCompletion(Map appendmap) async {
+  var map = Map<String, String>();
   map['deviceid'] = deviceid;
+  map.addAll(appendmap);
   print(map.toString());
 /*
   final jsonresponses =
@@ -381,4 +388,64 @@ class WithdrawAssistCompletion {
       processCompletionState: parsedJson['processCompletionState'],
     );
   }
+}
+
+//========= Schedule activatio/deactivation request =================
+
+Future<WithdrawAssistCompletion> scheduleActDeact(Map appendmap) async {
+//appendmap sends scheduleState = true or false.
+
+  var map = Map<String, dynamic>();
+  map['deviceid'] = deviceid;
+  map['task'] = "scheduleActivation";
+  map.addAll(appendmap);
+  print(map.toString());
+
+/*
+  final jsonresponses =
+      await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
+  print(jsonresponses.body.toString());
+
+  //await Future.delayed(Duration(seconds: 2)); //for testing
+
+*/
+  String _jsonresponse =
+      '{"deviceid":"456578","processCompletionState":"success"}';
+
+  final jsonresponse = json.decode(_jsonresponse);
+  print(jsonresponse.toString());
+  WithdrawAssistCompletion request =
+      WithdrawAssistCompletion.fromJson(jsonresponse);
+
+  return request;
+}
+
+//========= Schedule activatio/deactivation request =================
+
+Future<WithdrawAssistCompletion> resetSchedule(Map appendmap) async {
+//appendmap sends scheduleState = true or false.
+
+  var map = Map<String, dynamic>();
+  map['deviceid'] = deviceid;
+  map['task'] = "resetSchedule";
+  map.addAll(appendmap);
+  print(map.toString());
+
+/*
+  final jsonresponses =
+      await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
+  print(jsonresponses.body.toString());
+
+  //await Future.delayed(Duration(seconds: 2)); //for testing
+
+*/
+  String _jsonresponse =
+      '{"deviceid":"456578","processCompletionState":"success"}';
+
+  final jsonresponse = json.decode(_jsonresponse);
+  print(jsonresponse.toString());
+  WithdrawAssistCompletion request =
+      WithdrawAssistCompletion.fromJson(jsonresponse);
+
+  return request;
 }
