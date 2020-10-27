@@ -161,28 +161,30 @@ class _MedicationCardState extends State<MedicationCard> {
                 indent: 10,
                 endIndent: 10,
               ),
-              DataTable(
-                dataRowHeight: 20,
-                columns: [
-                  DataColumn(label: Text("Schedule Time")),
-                  DataColumn(label: Text("No. of Pills")),
-                ],
-                rows: [
-                  for (var i = 1; i <= (card.schedules.length) / 6; i++)
-                    DataRow(cells: [
-                      DataCell(Text(timeConverter(card.schedules
-                          .substring((i - 1) * 6, (i - 1) * 6 + 4)))),
-                      DataCell(Text(card.schedules
-                          .substring((i - 1) * 6 + 4, (i - 1) * 6 + 6)))
-                    ])
-                ],
-                /*rows: card.schedules.map((f) {
+              (card.schedules.length > 1)
+                  ? DataTable(
+                      dataRowHeight: 20,
+                      columns: [
+                        DataColumn(label: Text("Schedule Time")),
+                        DataColumn(label: Text("No. of Pills")),
+                      ],
+                      rows: [
+                        for (var i = 1; i <= (card.schedules.length) / 6; i++)
+                          DataRow(cells: [
+                            DataCell(Text(timeConverter(card.schedules
+                                .substring((i - 1) * 6, (i - 1) * 6 + 4)))),
+                            DataCell(Text(card.schedules
+                                .substring((i - 1) * 6 + 4, (i - 1) * 6 + 6)))
+                          ])
+                      ],
+                      /*rows: card.schedules.map((f) {
                     return DataRow(cells: [
                       DataCell(Text(f.time)),
                       DataCell(Text(f.pills.toString()))
                     ]);
                   }).toList()*/
-              ),
+                    )
+                  : SizedBox.shrink(),
               Container(
                 margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
                 decoration: BoxDecoration(

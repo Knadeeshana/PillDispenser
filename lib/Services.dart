@@ -1,51 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-//========== Generating Home Table ===============
-
-Future<MedicinetableHome> fetchtable() async {
-  var map = Map<String, dynamic>();
-  //map['deviceid'] = '456578';
-  final response = await http.get('http://192.248.10.68:8081/bakabaka/info');
-  print(response.body.toString());
-  /*String jsonresponse =
-      '[{"medicine": "amoxillin","numpills":4, "receivetime":"1 AM", "state":"true"},{"medicine": "amoxilin","numpills":3, "receivetime":"12 AM", "state":"false"},{"medicine": "Flagyl","numpills":1, "receivetime":"3 PM", "state":"false"}]';
-  final jsonResponse = json.decode(jsonresponse);
-  //print(jsonresponse);
-  MedicinetableHome album = new MedicinetableHome.fromJson(jsonResponse);
-  //print(album.hometable[1].medicine);
-  return (album);*/
-}
-
-class MedicinetableHome {
-  final List<Medicineloader> hometable;
-
-  MedicinetableHome({this.hometable});
-
-  factory MedicinetableHome.fromJson(List<dynamic> jsons) {
-    List<Medicineloader> _temptable = new List<Medicineloader>();
-    _temptable = jsons.map((i) => Medicineloader.fromJson(i)).toList();
-    return MedicinetableHome(hometable: _temptable);
-  }
-}
-
-class Medicineloader {
-  final String medicine;
-  final String numpills;
-  final String receivetime;
-  final String state;
-
-  Medicineloader({this.medicine, this.numpills, this.receivetime, this.state});
-
-  factory Medicineloader.fromJson(Map<String, dynamic> json) {
-    return Medicineloader(
-        medicine: json['medicine'],
-        numpills: json['numpills'].toString(),
-        receivetime: json['receivetime'],
-        state: (json['state'] == 'true') ? 'taken' : 'not taken');
-  }
-}
-
+String deviceid = '456578';
 //=============================================================
 
 editPatient(String salutation, String firstName, String lastName) {
@@ -63,7 +19,7 @@ editPatient(String salutation, String firstName, String lastName) {
 
 Future<LoadedMedication> fetchMedications() async {
   var map = Map<String, dynamic>();
-  map['deviceid'] = '456578';
+  map['deviceid'] = deviceid;
 /*
   final jsonresponses =
       await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
@@ -75,7 +31,7 @@ Future<LoadedMedication> fetchMedications() async {
   */
 
   String _jsonresponse =
-      '{"deviceid":"456578","scheduleState":true,"compartments":[{ "medicine":"Amoxillin","dose":"200","schedules":"090001170001"},{ "medicine":"Gemba","dose":"220","schedules":"015010170001235903"},{"medicine":"Flagyl","dose":"500","schedules":"100002180002000000" } ]}';
+      '{"deviceid":"456578","scheduleState":true,"compartments":[{ "medicine":"Amoxillin","dose":"200","schedules":"055005"},{ "medicine":"Gemba","dose":"220","schedules":"015010170001235903"},{"medicine":"Flagyl","dose":"500","schedules":"100002180002000000" } ]}';
 
   final jsonresponse = json.decode(_jsonresponse);
   print(jsonresponse.toString());
@@ -301,12 +257,63 @@ class Dispensed {
     return data;
   }
 }
+//========= Change Medicine Schedule =================
+
+Future<WithdrawAssistCompletion> modifyMedicineSchedule(Map appendmap) async {
+  var map = Map<String, String>();
+  map['deviceid'] = deviceid;
+  map.addAll(appendmap);
+  print(map.toString());
+  /*
+  final jsonresponses =
+      await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
+  print(jsonresponses.body.toString());
+
+  //await Future.delayed(Duration(seconds: 2)); //for testing
+
+*/
+  String _jsonresponse =
+      '{"deviceid":"456578","processCompletionState":"fail"}';
+
+  final jsonresponse = json.decode(_jsonresponse);
+  print(jsonresponse.toString());
+  WithdrawAssistCompletion request =
+      WithdrawAssistCompletion.fromJson(jsonresponse);
+  print(request.processCompletionState);
+  return request;
+}
+
+//========= Add New Medicine =================
+Future<WithdrawAssistCompletion> addMedicationRequest(Map appendmap) async {
+  var map = Map<String, String>();
+  map['deviceid'] = deviceid;
+  map.addAll(appendmap);
+
+  /*
+  final jsonresponses =
+      await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
+  print(jsonresponses.body.toString());
+
+  //await Future.delayed(Duration(seconds: 2)); //for testing
+
+*/
+  String _jsonresponse =
+      '{"deviceid":"456578","processCompletionState":"success"}';
+
+  final jsonresponse = json.decode(_jsonresponse);
+  print(jsonresponse.toString());
+  WithdrawAssistCompletion request =
+      WithdrawAssistCompletion.fromJson(jsonresponse);
+  print(request.processCompletionState);
+  return request;
+}
 
 //========= Compartment Withdrawal Request=================
 
-Future<WithdrawAssist> withdrawRequest(Map map) async {
-  map['deviceid'] = '456578';
-  print(map.toString());
+Future<WithdrawAssist> withdrawRequest(Map appendmap) async {
+  var map = Map<String, String>();
+  map['deviceid'] = deviceid;
+  map.addAll(appendmap);
 /*
   final jsonresponses =
       await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
@@ -341,7 +348,7 @@ class WithdrawAssist {
 //========= Compartment Withdrawal Completion Request =================
 
 Future<WithdrawAssistCompletion> withdrawCompletion(Map map) async {
-  map['deviceid'] = '456578';
+  map['deviceid'] = deviceid;
   print(map.toString());
 /*
   final jsonresponses =
@@ -352,7 +359,7 @@ Future<WithdrawAssistCompletion> withdrawCompletion(Map map) async {
 
 */
   String _jsonresponse =
-      '{"deviceid":"456578","withdrawCompletionState":"fail"}';
+      '{"deviceid":"456578","processCompletionState":"success"}';
 
   final jsonresponse = json.decode(_jsonresponse);
   print(jsonresponse.toString());
@@ -364,14 +371,14 @@ Future<WithdrawAssistCompletion> withdrawCompletion(Map map) async {
 
 class WithdrawAssistCompletion {
   final String deviceid;
-  final String withdrawCompletionState;
+  final String processCompletionState;
 
-  WithdrawAssistCompletion({this.deviceid, this.withdrawCompletionState});
+  WithdrawAssistCompletion({this.deviceid, this.processCompletionState});
 
   factory WithdrawAssistCompletion.fromJson(Map<String, dynamic> parsedJson) {
     return WithdrawAssistCompletion(
       deviceid: parsedJson['deviceid'],
-      withdrawCompletionState: parsedJson['withdrawCompletionState'],
+      processCompletionState: parsedJson['processCompletionState'],
     );
   }
 }

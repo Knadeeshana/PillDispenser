@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:pill_dispensor/Services.dart';
 
 class AddMedicine extends StatefulWidget {
   final String medicine;
@@ -13,12 +14,13 @@ class AddMedicine extends StatefulWidget {
 class _AddMedicineState extends State<AddMedicine> {
   final GlobalKey<FormState> _formKeyaddMedi = GlobalKey<FormState>();
   final GlobalKey<FormState> _formKeyadddose = GlobalKey<FormState>();
-  Map<String, dynamic> _medicineScheduleMap = {
+  Map<String, String> _medicineScheduleMap = {
     'medicine': null,
     'dose strength': null,
-    'schedules': {}
+    'schedules': " ",
+    'pill count': null,
   };
-  Map<dynamic, dynamic> _scheduleMap;
+  String _scheduleMap = "";
   String _medicine;
   String _doseStrength;
   String _time = '';
@@ -26,13 +28,58 @@ class _AddMedicineState extends State<AddMedicine> {
   Color _color = Colors.blue;
   bool textFieldEnable;
 
+  var serverCom = Map<String, dynamic>();
+  String requested;
+  final GlobalKey<FormState> _formEnterPillCount = GlobalKey<FormState>();
+  bool taskcompletion;
+
   void initState() {
     _medicine = widget.medicine;
     _doseStrength = widget.doseStrength;
     textFieldEnable =
         (widget.medicine == "" && widget.doseStrength == "") ? true : false;
-    print((widget.medicine.isNotEmpty && widget.doseStrength.isNotEmpty));
     super.initState();
+  }
+
+  Future successFailureDialog(result) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Note'),
+            titleTextStyle: TextStyle(
+                color: Colors.teal[800],
+                fontWeight: FontWeight.bold,
+                fontSize: 18),
+            content: Text((result.processCompletionState == "success")
+                ? "Processing successful"
+                : "Server Busy. Try again"),
+          );
+        });
+  }
+
+  void submitAdjustSchedule(_medicineScheduleMap) {
+    Navigator.pop(context);
+    modifyMedicineSchedule(_medicineScheduleMap).then((result) async {
+      successFailureDialog(result);
+      await Future.delayed(Duration(seconds: 2));
+      Navigator.popUntil(context, ModalRoute.withName('/navigator'));
+    });
+  }
+
+  String _updatingSchedules(String prevSchedule, String time, String pills) {
+    time = time.substring(0, 2) + time.substring(3);
+
+    pills = (int.parse(pills) < 10) ? ('0' + pills) : pills;
+
+    //appendSchedule = (appendSchedule.length == 5) ??
+    //  appendSchedule.substring(0, 4) + '0' + appendSchedule.substring(4);
+    if (prevSchedule == " ") {
+      prevSchedule = time + pills;
+    } else {
+      prevSchedule = prevSchedule + time + pills;
+    }
+    return prevSchedule;
   }
 
   Widget _nonDoseAlert() {
@@ -52,12 +99,12 @@ class _AddMedicineState extends State<AddMedicine> {
   }
 
   Widget _submitAlert(_numSchedules, _medicine) {
-    String dnum = _numSchedules == 1 ? "dose" : "doses";
     return AlertDialog(
       titleTextStyle: TextStyle(
           color: Colors.teal[800], fontWeight: FontWeight.bold, fontSize: 20),
       title: Text("Confirm!"),
-      content: Text("Submit to Schedule $_numSchedules $dnum of $_medicine."),
+      content:
+          Text("Scheduling ${_numSchedules.toInt()} dose/s of $_medicine."),
       actions: <Widget>[
         RaisedButton(
           shape:
@@ -65,7 +112,7 @@ class _AddMedicineState extends State<AddMedicine> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
             child: Text(
-              "Submit",
+              "Proceed",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 15,
@@ -75,7 +122,9 @@ class _AddMedicineState extends State<AddMedicine> {
           color: Colors.teal[800],
           onPressed: () {
             print(_medicineScheduleMap);
-            Navigator.popUntil(context, ModalRoute.withName('/navigator'));
+            (textFieldEnable)
+                ? popUpFill()
+                : submitAdjustSchedule(_medicineScheduleMap);
           },
         ),
       ],
@@ -98,12 +147,13 @@ class _AddMedicineState extends State<AddMedicine> {
             color: Colors.teal[800],
             onPressed: () {
               if (_formKeyaddMedi.currentState.validate()) {
-                if (_scheduleMap.length != 0) {
+                print(_scheduleMap.length);
+                if (_scheduleMap.length != 1) {
                   _formKeyaddMedi.currentState.save();
                   showDialog(
                       context: context,
                       builder: (_) =>
-                          _submitAlert(_scheduleMap.length, _medicine),
+                          _submitAlert((_scheduleMap.length / 6), _medicine),
                       barrierDismissible: true);
                   /*Scaffold.of(context).showSnackBar(SnackBar(
                       content: Text(
@@ -177,6 +227,8 @@ class _AddMedicineState extends State<AddMedicine> {
                   key: _formKeyadddose,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       Row(
                         children: <Widget>[
@@ -189,11 +241,8 @@ class _AddMedicineState extends State<AddMedicine> {
                                             backgroundColor: Colors.brown[50]),
                                         onConfirm: (time) {
                                       setState(() {
-                                        String min =
-                                            (time.minute.toString().length == 1)
-                                                ? ("0" + time.minute.toString())
-                                                : time.minute.toString();
-                                        __time = "${time.hour}: $min";
+                                        __time =
+                                            time.toString().substring(11, 16);
                                         _color = Colors.blue;
                                       });
                                     }, currentTime: DateTime.now());
@@ -218,8 +267,16 @@ class _AddMedicineState extends State<AddMedicine> {
                                 return null;
                               },
                               onSaved: (value) {
-                                _medicineScheduleMap['schedules']
-                                    .addAll({'$__time': '$value'});
+                                _scheduleMap =
+                                    _medicineScheduleMap['schedules'] =
+                                        _updatingSchedules(
+                                            _medicineScheduleMap['schedules'],
+                                            __time,
+                                            value);
+
+                                print(_medicineScheduleMap['schedules']);
+                                //_medicineScheduleMap['schedules']
+                                //  .addAll({'$__time': '$value'});
                               },
                             ),
                           ),
@@ -281,9 +338,205 @@ class _AddMedicineState extends State<AddMedicine> {
         });
   }
 
+  Future popUpFill() {
+    return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text('Fill the Medicine Dispenser'),
+              titleTextStyle: TextStyle(
+                  color: Colors.teal[800],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20),
+              content: StatefulBuilder(builder: (context, setState) {
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                          title: RaisedButton.icon(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                              label: Text(
+                                "Fill Medicine",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              icon: Icon(
+                                Icons.save,
+                                color: Colors.white,
+                              ),
+                              color: Colors.teal[800],
+                              onPressed: (requested == null)
+                                  ? (() {
+                                      serverCom['task'] = "Add New";
+                                      withdrawRequest(serverCom).then((result) {
+                                        setState(() {
+                                          requested = result.requestState;
+                                        });
+                                      });
+                                    })
+                                  : null)),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                        child: (requested == "success")
+                            ? Text(
+                                "Click the Main Button on device and wait for it to Open. Once the filling is completed, Fill the Number of Pills inserted. It is necessary that you input medicine to the dispenser when scheduling a new medicine.",
+                                textAlign: TextAlign.center,
+                              )
+                            : (requested == "fail")
+                                ? Text(
+                                    "Device Busy. Try again Later",
+                                    textAlign: TextAlign.center,
+                                  )
+                                : SizedBox.shrink(),
+                      ),
+                      ListTile(
+                          title: OutlineButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(
+                                  color: Colors.teal[800],
+                                  fontSize: 15,
+                                ),
+                              ),
+                              color: Colors.teal[800],
+                              onPressed: () {
+                                taskcompletion = null;
+                                requested = null;
+                                Navigator.pop(context);
+                              })),
+                      (requested == "success")
+                          ? Column(
+                              children: [
+                                Form(
+                                  key: _formEnterPillCount,
+                                  child: TextFormField(
+                                    decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.symmetric(
+                                            vertical: 5, horizontal: 10),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        labelText: 'Number of Pills'),
+                                    inputFormatters: [
+                                      WhitelistingTextInputFormatter.digitsOnly
+                                    ],
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(),
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return '*required';
+                                      }
+                                      return null;
+                                    },
+                                    onSaved: (value) {
+                                      _medicineScheduleMap['pillCount'] = value;
+                                    },
+                                  ),
+                                ),
+                                (taskcompletion == false)
+                                    ? Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            8, 0, 8, 0),
+                                        child: Text(
+                                            "*Submit after fixing the Compartment to device",
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.red[900])))
+                                    : SizedBox.shrink(),
+                                ListTile(
+                                    title: RaisedButton(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        child: Text(
+                                          "Submit",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        color: Colors.teal[800],
+                                        onPressed: () {
+                                          if (_formEnterPillCount.currentState
+                                              .validate()) {
+                                            _medicineScheduleMap['task'] =
+                                                serverCom['task'];
+
+                                            _formEnterPillCount.currentState
+                                                .save();
+                                            addMedicationRequest(
+                                                    _medicineScheduleMap)
+                                                .then((result) async {
+                                              if (result
+                                                      .processCompletionState ==
+                                                  "success") {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return AlertDialog(
+                                                        title: Text('Note'),
+                                                        titleTextStyle:
+                                                            TextStyle(
+                                                                color: Colors
+                                                                    .teal[800],
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 18),
+                                                        content: Text(
+                                                            "Processing successful"),
+                                                      );
+                                                    });
+                                                await Future.delayed(
+                                                    Duration(seconds: 2));
+                                                Navigator.popUntil(
+                                                    context,
+                                                    ModalRoute.withName(
+                                                        '/navigator'));
+                                              }
+                                              setState(() {
+                                                taskcompletion =
+                                                    (result.processCompletionState !=
+                                                            "success") ??
+                                                        false;
+
+                                                if (taskcompletion) {
+                                                  requested = null;
+                                                  Navigator.popUntil(
+                                                      context,
+                                                      ModalRoute.withName(
+                                                          '/navigator'));
+                                                }
+                                              });
+                                            });
+                                          }
+
+                                          //withdrawCompletion()
+                                        })),
+                              ],
+                            )
+                          : SizedBox.shrink()
+                    ],
+                  ),
+                );
+              }));
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     _scheduleMap = _medicineScheduleMap['schedules'];
+    print(_scheduleMap);
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.teal,
@@ -328,18 +581,18 @@ class _AddMedicineState extends State<AddMedicine> {
                       height: 5,
                     ),
                     ListTile(
-                        title: RaisedButton(
+                        title: FlatButton(
                       padding: EdgeInsets.only(top: 10, bottom: 10),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
+                          borderRadius: BorderRadius.circular(30),
+                          side: BorderSide(color: Colors.teal, width: 2)),
                       child: Text(
                         "Schedule Dose",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 15,
                         ),
                       ),
-                      color: Colors.teal[800],
                       onPressed: () {
                         if (_formKeyaddMedi.currentState.validate()) {
                           _formKeyaddMedi.currentState.save();

@@ -81,20 +81,23 @@ class _MedicationsState extends State<Medications> {
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AddMedicine(
-                                  medicine: "",
-                                  doseStrength: "",
-                                )));
-                  },
-                  child: Icon(
-                    Icons.add,
-                    size: 26.0,
-                  ),
-                )),
+                    child: Icon(
+                      Icons.add,
+                      size: 26.0,
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AddMedicine(
+                                    medicine: "",
+                                    doseStrength: "",
+                                  ))).then(
+                        (value) {
+                          setState(() {});
+                        },
+                      );
+                    })),
           ],
           backgroundColor: Colors.teal,
           title: Text('Medications'),

@@ -119,6 +119,7 @@ class _SignUpState extends State<SignUp> {
                                           if (value.isEmpty) {
                                             return "Required";
                                           }
+                                          return null;
                                         },
                                         onSaved: (value) {
                                           signupdata['last name'] = value;
