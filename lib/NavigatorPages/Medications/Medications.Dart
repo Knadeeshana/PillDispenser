@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pill_dispensor/Services.dart';
 import 'MedicationCard.dart';
 import 'AddMedicine.dart';
-
+import 'package:pill_dispensor/CommonFunc.dart';
 //Problem in Json Parsing
 
 class Medications extends StatefulWidget {
@@ -12,13 +12,14 @@ class Medications extends StatefulWidget {
 
 class _MedicationsState extends State<Medications> {
   Future<LoadedMedication> medicationtable;
-  bool scheduleState = true; //get val from server
+  //bool scheduleState = true; //get val from server
   String schState;
+
   void initState() {
     super.initState();
     medicationtable = fetchMedications();
     print(medicationtable.toString());
-    schState = scheduleState ? "On" : "Off";
+    //schState = scheduleState ? "On" : "Off";
   }
 
   Widget _scheduleStatusChange(value) {
@@ -28,7 +29,7 @@ class _MedicationsState extends State<Medications> {
       title: Text("Alert!"),
       content: Text(
         "Do you want to Turn ${schState == "On" ? "Off" : "On"} the Medicine Schedules ?",
-        textAlign: TextAlign.center,
+        textAlign: TextAlign.start,
       ),
       actions: <Widget>[
         OutlineButton(
@@ -64,9 +65,17 @@ class _MedicationsState extends State<Medications> {
           ),
           color: Colors.teal[800],
           onPressed: () {
-            scheduleState = value;
-            print("changed to ${schState == "Off" ? "On" : "Off"} ");
+            //scheduleState = value;
+            Map<String, dynamic> tempMap = {"scheduleState": value};
+            scheduleActDeact(tempMap).then((result) async {
+              successFailureDialog(context, result);
+
+              await Future.delayed(Duration(seconds: 2));
+              Navigator.popUntil(context, ModalRoute.withName('/navigator'));
+            });
+            setState(() {});
             Navigator.pop(context);
+            print("changed to ${schState == "Off" ? "On" : "Off"} ");
           },
         ),
       ],
@@ -131,14 +140,14 @@ class _MedicationsState extends State<Medications> {
                                       showDialog(
                                               context: context,
                                               builder: (context) {
+                                                print(value);
                                                 return _scheduleStatusChange(
                                                     value);
                                               },
                                               barrierDismissible: false)
-                                          .then((value) {
+                                          .then((val) {
                                         setState(() {
                                           //schState = isSwitched ? "On" : "Off";
-                                          print("Schedules $schState");
                                         });
                                       });
                                     },
