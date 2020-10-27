@@ -95,7 +95,9 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                       padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                       child: (requested == "success")
                           ? Text(
-                              "Click the Main Button on device and wait for it to Open. Once the ${serverCom['task']} is completed, Fill the Number of Pills ${(serverCom['task'] == "Refill") ? "inserted" : "taken out"}.",
+                              (serverCom['task'] == "Remove")
+                                  ? "Click the Main Button on device and wait for it to Open. Once the Removal is completed press Submit button Below"
+                                  : "Click the Main Button on device and wait for it to Open. Once the ${serverCom['task']} is completed, Fill the Number of Pills ${(serverCom['task'] == "Refill") ? "inserted" : "taken out"}.",
                               textAlign: TextAlign.center,
                             )
                           : (requested == "fail")
@@ -125,94 +127,105 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                               Navigator.pop(context);
                             })),
                     (requested == "success")
-                        ? Column(
-                            children: [
-                              Form(
-                                key: _formEnterPillCount,
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: 5, horizontal: 10),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      labelText: 'Number of Pills'),
-                                  inputFormatters: [
-                                    WhitelistingTextInputFormatter.digitsOnly
-                                  ],
-                                  keyboardType:
-                                      TextInputType.numberWithOptions(),
-                                  validator: (value) {
-                                    if (value.isEmpty) {
-                                      return '*required';
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (value) {
-                                    withdrawSubmit['pill count'] = value;
-                                  },
-                                ),
-                              ),
-                              (taskcompletion == false)
-                                  ? Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                      child: Text(
-                                          "*Submit after fixing the Compartment to device",
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.red[900])))
-                                  : SizedBox.shrink(),
-                              ListTile(
-                                  title: RaisedButton(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      child: Text(
-                                        "Submit",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                      color: Colors.teal[800],
-                                      onPressed: () {
-                                        if (_formEnterPillCount.currentState
-                                            .validate()) {
-                                          withdrawSubmit['task'] =
-                                              serverCom['task'];
-                                          withdrawSubmit['medicine'] =
-                                              selectedComp;
-                                          _formEnterPillCount.currentState
-                                              .save();
-                                          withdrawCompletion(withdrawSubmit)
-                                              .then((result) {
-                                            setState(() {
-                                              submitResult =
-                                                  result.processCompletionState;
-                                              taskcompletion =
-                                                  (submitResult == "success")
-                                                      ? true
-                                                      : false;
-
-                                              if (taskcompletion) {
-                                                selectedComp = null;
-                                                requested = null;
-                                                Navigator.pop(context);
-                                              }
-                                            });
-                                          });
-                                        }
-
-                                        //withdrawCompletion()
-                                      })),
-                            ],
-                          )
+                        ? requestedExtensionDialog()
                         : SizedBox.shrink()
                   ],
                 );
               }));
         });
+  }
+
+  Widget requestedExtensionDialog() {
+    return Column(
+      children: [
+        (serverCom['task'] != "Remove")
+            ? Form(
+                key: _formEnterPillCount,
+                child: TextFormField(
+                  decoration: InputDecoration(
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      labelText: 'Number of Pills'),
+                  inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+                  keyboardType: TextInputType.numberWithOptions(),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return '*required';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    withdrawSubmit['pill count'] = value;
+                  },
+                ),
+              )
+            : SizedBox.shrink(),
+        (taskcompletion == false)
+            ? Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                child: Text("*Submit after fixing the Compartment to device",
+                    style: TextStyle(fontSize: 14, color: Colors.red[900])))
+            : SizedBox.shrink(),
+        ListTile(
+            title: RaisedButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  "Submit",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                  ),
+                ),
+                color: Colors.teal[800],
+                onPressed: () {
+                  if (serverCom['task'] != "Remove") {
+                    if (_formEnterPillCount.currentState.validate()) {
+                      withdrawSubmit['task'] = serverCom['task'];
+                      withdrawSubmit['medicine'] = selectedComp;
+
+                      _formEnterPillCount.currentState.save();
+                      withdrawCompletion(withdrawSubmit).then((result) {
+                        setState(() {
+                          submitResult = result.processCompletionState;
+                          taskcompletion =
+                              (submitResult == "success") ? true : false;
+
+                          if (taskcompletion) {
+                            selectedComp = null;
+                            requested = null;
+                            Navigator.pop(context);
+                          }
+                        });
+                      });
+                    }
+                  } else {
+                    withdrawSubmit['task'] = serverCom['task'];
+                    withdrawSubmit['medicine'] = selectedComp;
+
+                    withdrawCompletion(withdrawSubmit).then((result) {
+                      setState(() {
+                        submitResult = result.processCompletionState;
+                        taskcompletion =
+                            (submitResult == "success") ? true : false;
+
+                        if (taskcompletion) {
+                          selectedComp = null;
+                          requested = null;
+                          Navigator.pop(context);
+                        }
+                      });
+                    });
+                  }
+
+                  //withdrawCompletion()
+                })),
+      ],
+    );
   }
 
   Widget build(BuildContext context) {
