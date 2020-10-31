@@ -7,7 +7,9 @@ class MedicationCard extends StatefulWidget {
   final Compartment cardDetails;
   final int cardKey;
   final String schState;
-  const MedicationCard({Key key, this.cardDetails, this.cardKey, this.schState})
+  final bool isPill;
+  const MedicationCard(
+      {Key key, this.cardDetails, this.cardKey, this.schState, this.isPill})
       : super(key: key);
 
   @override
@@ -18,10 +20,12 @@ class _MedicationCardState extends State<MedicationCard> {
   Compartment card;
   int cardKey;
   String schState;
+  bool isPill;
 
   void initState() {
     card = widget.cardDetails;
     cardKey = widget.cardKey;
+    isPill = widget.isPill;
     super.initState();
   }
 
@@ -111,7 +115,9 @@ class _MedicationCardState extends State<MedicationCard> {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Card(
-        color: schState == "On" ? Colors.white : Colors.blueGrey[100],
+        color: schState == "On"
+            ? ((isPill) ? Colors.white : Colors.cyan[50])
+            : Colors.blueGrey[100],
         elevation: 5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Container(
@@ -133,25 +139,29 @@ class _MedicationCardState extends State<MedicationCard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0, 15, 10, 0),
-                            child: Text("Dose Strength"),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                            child: Text(card.dose, style: TextStyle()),
-                          )
-                        ],
-                      ),
+                      isPill
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(0, 15, 10, 0),
+                                  child: Text("Dose Strength"),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                  child: Text(card.dose, style: TextStyle()),
+                                )
+                              ],
+                            )
+                          : SizedBox.shrink(),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Padding(
                             padding: EdgeInsets.fromLTRB(5, 15, 15, 0),
-                            child: Text("Pills Storage"),
+                            child: Text(isPill
+                                ? "Pills Storage"
+                                : "Liquid Storage (Approx. ml)"),
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(5, 0, 15, 0),
@@ -173,7 +183,9 @@ class _MedicationCardState extends State<MedicationCard> {
                       dataRowHeight: 20,
                       columns: [
                         DataColumn(label: Text("Schedule Time")),
-                        DataColumn(label: Text("No. of Pills")),
+                        DataColumn(
+                            label:
+                                Text(isPill ? "No. of Pills" : "Amount (ml)")),
                       ],
                       rows: [
                         for (var i = 1; i <= (card.schedules.length) / 6; i++)
@@ -199,7 +211,7 @@ class _MedicationCardState extends State<MedicationCard> {
                       bottomLeft: Radius.circular(10),
                       bottomRight: Radius.circular(10)),
                   color: schState == "On"
-                      ? Colors.grey[200]
+                      ? ((isPill) ? Colors.grey[200] : Colors.cyan[100])
                       : Colors.blueGrey[300],
                 ),
                 child: Row(
@@ -232,6 +244,7 @@ class _MedicationCardState extends State<MedicationCard> {
                                   builder: (context) => AddMedicine(
                                         medicine: card.medicine,
                                         doseStrength: card.dose,
+                                        isPill: isPill,
                                       )));
                         }),
                   ],

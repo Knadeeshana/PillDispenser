@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:toggle_switch/toggle_switch.dart';
+
 import 'package:pill_dispensor/Services.dart';
 import 'package:pill_dispensor/CommonFunc.dart';
 
 class AddMedicine extends StatefulWidget {
   final String medicine;
   final String doseStrength;
-  const AddMedicine({this.medicine, this.doseStrength});
+  final bool isPill;
+  const AddMedicine({this.medicine, this.doseStrength, this.isPill});
   @override
   _AddMedicineState createState() => _AddMedicineState();
 }
@@ -23,6 +26,8 @@ class _AddMedicineState extends State<AddMedicine> {
   String _scheduleMap = "";
   String _medicine;
   String _doseStrength;
+  bool _isPill = true;
+
   String _time = '';
   bool disabled = false;
   Color _color = Colors.blue;
@@ -36,6 +41,7 @@ class _AddMedicineState extends State<AddMedicine> {
   void initState() {
     _medicine = widget.medicine;
     _doseStrength = widget.doseStrength;
+    _isPill = widget.isPill;
     textFieldEnable =
         (widget.medicine == "" && widget.doseStrength == "") ? true : false;
     super.initState();
@@ -236,8 +242,10 @@ class _AddMedicineState extends State<AddMedicine> {
                                   ))),
                           Expanded(
                             child: TextFormField(
-                              decoration:
-                                  InputDecoration(labelText: 'Number of Pills'),
+                              decoration: InputDecoration(
+                                  labelText: _isPill
+                                      ? 'Number of Pills'
+                                      : 'Amount (in ml)'),
                               initialValue: _time,
                               inputFormatters: [
                                 WhitelistingTextInputFormatter.digitsOnly
@@ -368,7 +376,7 @@ class _AddMedicineState extends State<AddMedicine> {
                         padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                         child: (requested == "success")
                             ? Text(
-                                "Click the Main Button on device and wait for it to Open. Once the filling is completed, Fill the Number of Pills inserted. It is necessary that you input medicine to the dispenser when scheduling a new medicine.",
+                                "Click the Main Button on device and wait for it to Open. Once the filling is completed, ${_isPill ? "Fill the Number of Pills inserted" : "Click the submit button"}. It is necessary that you input medicine to the dispenser when scheduling a new medicine.",
                                 textAlign: TextAlign.center,
                               )
                             : (requested == "fail")
@@ -539,13 +547,35 @@ class _AddMedicineState extends State<AddMedicine> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     SizedBox(
-                      height: 10,
+                      height: 5,
+                    ),
+                    Center(
+                      child: ToggleSwitch(
+                          fontSize: 15,
+                          minWidth: 90.0,
+                          initialLabelIndex: _isPill ? 0 : 1,
+                          cornerRadius: 20.0,
+                          activeFgColor: Colors.white,
+                          inactiveBgColor: Colors.grey[200],
+                          inactiveFgColor: Colors.black,
+                          labels: ['Pill', 'Liquid'],
+                          //icons: [Icons.ac_unit, Icons.accessible_forward],
+                          activeBgColor: Colors.teal,
+                          changeOnTap: false,
+                          onToggle: null
+                          /*(index) {
+                          return ('switched to: $index');
+                        },*/
+                          ),
+                    ),
+                    SizedBox(
+                      height: _isPill ? 25 : 40,
                     ),
                     _buildMedicine(),
                     SizedBox(
-                      height: 30,
+                      height: _isPill ? 30 : 1,
                     ),
-                    _buildMedicineWeight(),
+                    _isPill ? _buildMedicineWeight() : SizedBox.shrink(),
                     SizedBox(
                       height: 25,
                     ),

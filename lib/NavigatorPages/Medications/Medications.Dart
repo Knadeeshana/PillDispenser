@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:toggle_switch/toggle_switch.dart';
+
 import 'package:pill_dispensor/Services.dart';
 import 'MedicationCard.dart';
 import 'AddMedicine.dart';
 import 'package:pill_dispensor/CommonFunc.dart';
+
 //Problem in Json Parsing
 
 class Medications extends StatefulWidget {
@@ -20,6 +23,61 @@ class _MedicationsState extends State<Medications> {
     medicationtable = fetchMedications();
     print(medicationtable.toString());
     //schState = scheduleState ? "On" : "Off";
+  }
+
+  Widget _pillorLiquidDialog() {
+    bool _isPill = true;
+    return AlertDialog(
+        titleTextStyle: TextStyle(
+            color: Colors.teal[800], fontWeight: FontWeight.bold, fontSize: 20),
+        title: Text("Select the type"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ToggleSwitch(
+                  fontSize: 15,
+                  minWidth: 80.0,
+                  initialLabelIndex: 0,
+                  cornerRadius: 20.0,
+                  activeFgColor: Colors.white,
+                  inactiveBgColor: Colors.grey[200],
+                  inactiveFgColor: Colors.black,
+                  labels: ['Pill', 'Liquid'],
+                  activeBgColor: Colors.teal,
+                  onToggle: (index) {
+                    (index == 1) ? (_isPill = false) : (_isPill = true);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          RaisedButton(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+              child: Text(
+                "OK",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+            color: Colors.teal[800],
+            onPressed: () {
+              Navigator.pop(context, _isPill);
+            },
+          ),
+        ]);
   }
 
   Widget _scheduleStatusChange(value) {
@@ -94,18 +152,22 @@ class _MedicationsState extends State<Medications> {
                       Icons.add,
                       size: 26.0,
                     ),
-                    onTap: () {
+                    onTap: () async {
+                      bool isPill = await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return _pillorLiquidDialog();
+                          },
+                          barrierDismissible: true);
+
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => AddMedicine(
                                     medicine: "",
                                     doseStrength: "",
-                                  ))).then(
-                        (value) {
-                          setState(() {});
-                        },
-                      );
+                                    isPill: isPill,
+                                  )));
                     })),
           ],
           backgroundColor: Colors.teal,
@@ -164,10 +226,12 @@ class _MedicationsState extends State<Medications> {
                                       return MapEntry(
                                           keys,
                                           MedicationCard(
-                                            cardDetails: f,
-                                            cardKey: keys,
-                                            schState: schState,
-                                          ));
+                                              cardDetails: f,
+                                              cardKey: keys,
+                                              schState: schState,
+                                              isPill: (f.dose == "-")
+                                                  ? false
+                                                  : true));
                                     })
                                     .values
                                     .toList()),
