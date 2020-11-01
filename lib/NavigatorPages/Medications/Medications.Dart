@@ -26,7 +26,7 @@ class _MedicationsState extends State<Medications> {
   }
 
   Widget _pillorLiquidDialog() {
-    bool _isPill = true;
+    String _isPill = "pill";
     return AlertDialog(
         titleTextStyle: TextStyle(
             color: Colors.teal[800], fontWeight: FontWeight.bold, fontSize: 20),
@@ -51,7 +51,7 @@ class _MedicationsState extends State<Medications> {
                   labels: ['Pill', 'Liquid'],
                   activeBgColor: Colors.teal,
                   onToggle: (index) {
-                    (index == 1) ? (_isPill = false) : (_isPill = true);
+                    (index == 1) ? (_isPill = "liquid") : (_isPill = "pill");
                   },
                 ),
               ],
@@ -153,21 +153,35 @@ class _MedicationsState extends State<Medications> {
                       size: 26.0,
                     ),
                     onTap: () async {
-                      bool isPill = await showDialog(
+                      String pillorLiquid;
+                      pillorLiquid = await showDialog(
                           context: context,
                           builder: (context) {
                             return _pillorLiquidDialog();
                           },
                           barrierDismissible: true);
 
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => AddMedicine(
-                                    medicine: "",
-                                    doseStrength: "",
-                                    isPill: isPill,
-                                  )));
+                      if (pillorLiquid != null) {
+                        bool isPill = (pillorLiquid == "pill") ? true : false;
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AddMedicine(
+                                      medicine: "",
+                                      doseStrength: "",
+                                      isPill: isPill,
+                                    )));
+                      }
+                    })),
+            Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: GestureDetector(
+                    child: Icon(
+                      Icons.settings_remote,
+                      size: 26.0,
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pushNamed('/WithdrawCompartments');
                     })),
           ],
           backgroundColor: Colors.teal,
@@ -229,7 +243,7 @@ class _MedicationsState extends State<Medications> {
                                               cardDetails: f,
                                               cardKey: keys,
                                               schState: schState,
-                                              isPill: (f.dose == "-")
+                                              isPill: (f.dose == "")
                                                   ? false
                                                   : true));
                                     })

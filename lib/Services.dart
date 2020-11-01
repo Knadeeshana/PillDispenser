@@ -32,7 +32,7 @@ Future<LoadedMedication> fetchMedications() async {
   */
 
   String _jsonresponse =
-      '{"deviceid":"456578","scheduleState":true,"compartments":[{ "medicine":"Amoxillin","dose":"200","pill count":"50","schedules":"055005"},{ "medicine":"Panadol","dose":"220","pill count":"70","schedules":"015010170001235903"},{"medicine":"Pawatta","dose":"-","pill count":"350","schedules":"100005180010000005" } ]}';
+      '{"deviceid":"456578","scheduleState":true,"compartments":[{ "medicine":"Amoxillin","dose":"200","pill count":"50","schedules":"055005"},{ "medicine":"Panadol","dose":"220","pill count":"70","schedules":"015010170001235903"},{"medicine":"Pawatta","dose":"","pill count":"350","schedules":"100005180010000005" } ]}';
 
   final jsonresponse = json.decode(_jsonresponse);
   print(jsonresponse.toString());

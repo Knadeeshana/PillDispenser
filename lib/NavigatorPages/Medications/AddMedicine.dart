@@ -417,7 +417,9 @@ class _AddMedicineState extends State<AddMedicine> {
                                           borderRadius:
                                               BorderRadius.circular(8),
                                         ),
-                                        labelText: 'Number of Pills'),
+                                        labelText: _isPill
+                                            ? 'Number of Pills'
+                                            : 'Amount (approx. ml)'),
                                     inputFormatters: [
                                       WhitelistingTextInputFormatter.digitsOnly
                                     ],
