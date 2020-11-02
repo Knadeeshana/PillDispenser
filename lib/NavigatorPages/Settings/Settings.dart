@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
+import 'logout.dart';
+
 class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -58,6 +60,13 @@ class Settings extends StatelessWidget {
                 title: Text('About'),
                 trailing: Icon(Icons.more_vert),
               ),
+            ),
+            Card(
+              child: ListTile(
+                  leading: Icon(Icons.highlight_off),
+                  title: Text('Logout'),
+                  trailing: Icon(Icons.more_vert),
+                  onTap: () => logout(context)),
             ),
           ],
         ));

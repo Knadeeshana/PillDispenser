@@ -16,3 +16,33 @@ Future successFailureDialog(BuildContext context, result) async {
         );
       });
 }
+
+class Dialogs {
+  static Future<void> showLoadingDialog(
+      BuildContext context, GlobalKey key) async {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new WillPopScope(
+              onWillPop: () async => false,
+              child: SimpleDialog(
+                  key: key,
+                  backgroundColor: Colors.black87,
+                  children: <Widget>[
+                    Center(
+                      child: Column(children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0, 25, 0, 25),
+                          child: CircularProgressIndicator(),
+                        ),
+                        Text(
+                          "Please Wait...",
+                          style: TextStyle(color: Colors.teal),
+                        )
+                      ]),
+                    )
+                  ]));
+        });
+  }
+}

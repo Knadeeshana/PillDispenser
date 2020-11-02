@@ -26,6 +26,7 @@ dependencies:
   fancy_bottom_navigation: ^0.3.2
   barcode_scan: ^3.0.1
   toggle_switch: ^0.1.8
+  shared_preferences: ^0.5.1+2
 
 #dependency_overrides:
   #flutter_svg: 0.18.0
