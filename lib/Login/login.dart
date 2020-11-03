@@ -193,6 +193,7 @@ class _LoginState extends State<Login> {
                               ),
                               color: Colors.teal[800],
                               onPressed: () async {
+                                FocusScope.of(context).unfocus();
                                 if (_formKey.currentState.validate()) {
                                   _handleSubmit(context, _emailController.text,
                                       _passwordController.text);
