@@ -20,7 +20,7 @@ class _AddMedicineState extends State<AddMedicine> {
   final GlobalKey<FormState> _formKeyadddose = GlobalKey<FormState>();
   Map<String, String> _medicineScheduleMap = {
     'medicine': null,
-    'dose strength': null,
+    'doseStrength': null,
     'schedules': " ",
   };
   String _scheduleMap = "";
@@ -198,7 +198,7 @@ class _AddMedicineState extends State<AddMedicine> {
         return null;
       },
       onSaved: (value) {
-        _doseStrength = _medicineScheduleMap['dose strength'] = value;
+        _doseStrength = _medicineScheduleMap['doseStrength'] = value;
       },
     );
   }
@@ -363,7 +363,7 @@ class _AddMedicineState extends State<AddMedicine> {
                               color: Colors.teal[800],
                               onPressed: (requested == null)
                                   ? (() {
-                                      serverCom['task'] = "add new";
+                                      serverCom['task'] = "a";
                                       print(serverCom.toString());
                                       withdrawRequest(serverCom).then((result) {
                                         setState(() {
@@ -432,8 +432,7 @@ class _AddMedicineState extends State<AddMedicine> {
                                       return null;
                                     },
                                     onSaved: (value) {
-                                      _medicineScheduleMap['pill count'] =
-                                          value;
+                                      _medicineScheduleMap['pillCount'] = value;
                                     },
                                   ),
                                 ),

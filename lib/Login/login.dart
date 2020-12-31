@@ -170,6 +170,7 @@ class _LoginState extends State<Login> {
                                   value: _keepsigned,
                                   onChanged: (bool value) {
                                     setState(() {
+                                      FocusScope.of(context).unfocus();
                                       _keepsigned = value;
                                     });
                                   },

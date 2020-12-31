@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
-import 'logout.dart';
+import 'package:pill_dispensor/Login/logout.dart';
 
 class Settings extends StatelessWidget {
   @override

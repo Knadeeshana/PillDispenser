@@ -14,7 +14,7 @@ Future<dynamic> loginUser(String email, String password) async {
     /*var response = await http.post(_url,
         body: map);*/
 
-    var response = '{"status_text":"login Ssuccess"}';
+    var response = '{"status_text":"login Success"}';
     var jsonResponse = json.decode(response);
     print(jsonResponse.toString());
     await Future.delayed(Duration(seconds: 2));
@@ -42,7 +42,7 @@ Future<dynamic> signUpUser(signupdata) async {
   try {
     /*var response = await http.post(_url,
         body: {"deviceid":deviceid,task": "signup", "first_name":f_name, "last name": l_name, "email": email, "password": password});*/
-    var response = '{"status_text":"signUp Ssuccess"}';
+    var response = '{"status_text":"signUp Success"}';
     var jsonResponse = json.decode(response);
     print(jsonResponse.toString());
     await Future.delayed(Duration(seconds: 2));

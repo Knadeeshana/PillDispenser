@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 
 String deviceid = '456578';
@@ -21,36 +22,23 @@ Future<LoadedMedication> fetchMedications() async {
   var map = Map<String, dynamic>();
   map['deviceid'] = deviceid;
   map['task'] = "getAllMedicines";
-/*
-  final jsonresponses =
-      await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
-  print(jsonresponses.body.toString());
-*/
-  await Future.delayed(Duration(seconds: 2)); //for testing
-  /*String _jsonresponse =
-      '[{"medicine": "Amoxillin","dose strength":200, "Schedules":[{"time":"9.00 AM","pills":1},{"time":"5.00PM","pills":2},{"time":"10.00PM","pills":2}]},{"medicine": "Flagyl","dose strength":500, "Schedules":[{"time":"10.00 AM","pills":2},{"time":"6.00PM","pills":2}]},{"medicine": "Paracetamol","dose strength":150, "Schedules":[{"time":"11.00 AM","pills":1},{"time":"3.00PM","pills":1}]}]';
-  */
-
-  String _jsonresponse =
-      '{"deviceid":"456578","scheduleState":true,"compartments":[{ "medicine":"Amoxillin","dose":"200","pill count":"50","schedules":"055005"},{ "medicine":"Panadol","dose":"220","pill count":"70","schedules":"015010170001235903"},{"medicine":"Pawatta","dose":"","pill count":"350","schedules":"100005180010000005" } ]}';
-
-  final jsonresponse = json.decode(_jsonresponse);
-  print(jsonresponse.toString());
-  LoadedMedication medications = LoadedMedication.fromJson(jsonresponse);
-  /*LoadedMedication medications = LoadedMedication.fromJson(jsonresponse);
-  print(medications.toString());
-  print(medications.compartments[0].schedules);
-  print(medications.compartments[0].medicine);
-  print(medications.compartments[0].dose);
-  print(medications.compartments[0].medicine);
-  print(medications.compartments[1].schedules);
-*/
-  return medications;
+  try {
+    final jsonresponses =
+        await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
+    //print(jsonresponses.statusCode);
+    //print(jsonresponses.body.toString());
+    //String jsonresponses =      '{"deviceid":"456578","scheduleState":true,"compartments":[{ "medicine":"Amoxillin","dose":"200","pill count":"50","schedules":"055005"},{ "medicine":"Panadol","dose":"220","pill count":"70","schedules":"015010170001235903"},{"medicine":"Pawatta","dose":"","pill count":"350","schedules":"100005180010000005" } ]}';
+    final jsonresponse = json.decode(jsonresponses.body);
+    LoadedMedication medications = LoadedMedication.fromJson(jsonresponse);
+    return medications;
+  } catch (e) {
+    print("error " + e);
+  }
 }
 
 class LoadedMedication {
   final String deviceid;
-  final bool scheduleState;
+  final String scheduleState;
   final List<Compartment> compartments;
 
   LoadedMedication({this.deviceid, this.scheduleState, this.compartments});
@@ -79,9 +67,12 @@ class Compartment {
   factory Compartment.fromJson(Map<String, dynamic> parsedJson) {
     return Compartment(
         medicine: parsedJson['medicine'],
-        dose: parsedJson['dose'],
-        schedules: parsedJson['schedules'],
-        pillCount: parsedJson['pill count']);
+        dose: (parsedJson['doseStrength'] == null)
+            ? " "
+            : parsedJson['doseStrength'],
+        schedules:
+            (parsedJson['schedules'] == null) ? " " : parsedJson['schedules'],
+        pillCount: parsedJson['pillCount']);
   }
 }
 
@@ -285,22 +276,21 @@ Future<WithdrawAssistCompletion> modifyMedicineSchedule(Map appendmap) async {
 //========= Add New Medicine =================
 Future<WithdrawAssistCompletion> addMedicationRequest(Map appendmap) async {
   print(appendmap.toString());
-  var map = Map<String, String>();
+  var map = Map<String, dynamic>();
   map['deviceid'] = deviceid;
+  map['status'] = "true";
+  //map['compartments']=[{"medicine":appendmap['medicine'],"dosestrength":appendmap['dose strength'],"schedules":appendmap['schedules'],"pills":appendmap['']}]
   map.addAll(appendmap);
 
-  /*
   final jsonresponses =
-      await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
+      await http.post('http://192.248.10.68:8081/bakabaka/addmed', body: map);
   print(jsonresponses.body.toString());
 
   //await Future.delayed(Duration(seconds: 2)); //for testing
 
-*/
-  String _jsonresponse =
-      '{"deviceid":"456578","processCompletionState":"success"}';
-
-  final jsonresponse = json.decode(_jsonresponse);
+  //String _jsonresponse =     '{"deviceid":"456578","processCompletionState":"success"}';
+  print(jsonresponses.body);
+  final jsonresponse = json.decode(jsonresponses.body);
   print(jsonresponse.toString());
   WithdrawAssistCompletion request =
       WithdrawAssistCompletion.fromJson(jsonresponse);
@@ -311,29 +301,31 @@ Future<WithdrawAssistCompletion> addMedicationRequest(Map appendmap) async {
 //========= Compartment Withdrawal Request=================
 
 Future<WithdrawAssist> withdrawRequest(Map appendmap) async {
-  //to check the device status in the interactions with device. refill, add new, withdraw
-// appendmap contain "task":"add new"
+//to check the device status in the interactions with device. refill, add new, withdraw
+// appendmap contain "task":"a" or "task":"r" or "task":"w"
 
-  print(appendmap.toString());
   var map = Map<String, String>();
   map['deviceid'] = deviceid;
+  map['status'] = "true";
 
   map.addAll(appendmap);
-/*
-  final jsonresponses =
-      await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
-  print(jsonresponses.body.toString());
-
+  (map['medicine'] == null) ?? (map['medicine'] = "");
+  print(map.toString());
+  final _jsonresponse = await http
+      .post('http://192.248.10.68:8081/bakabaka/notification', body: map);
+  //print(jsonresponses.body.toString());
   //await Future.delayed(Duration(seconds: 2)); //for testing
-
-*/
-  String _jsonresponse = '{"deviceid":"456578","requestState":"success"}';
-
-  final jsonresponse = json.decode(_jsonresponse);
-  print(jsonresponse.toString());
-  WithdrawAssist request = WithdrawAssist.fromJson(jsonresponse);
-
-  return request;
+  if (_jsonresponse.statusCode == 200) {
+    print("Response Body: " + _jsonresponse.body);
+    final jsonresponse = json.decode(_jsonresponse.body);
+    print(jsonresponse.toString());
+    WithdrawAssist request = WithdrawAssist.fromJson(jsonresponse);
+    print(request.requestState);
+    return request;
+  } else {
+    print("Request failed with status: ${_jsonresponse.statusCode}.");
+  }
+  //String _jsonresponsek = '{"deviceid":"456578","requestState":"success"}';
 }
 
 class WithdrawAssist {

@@ -17,7 +17,7 @@ void main() => runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(accentColor: Colors.teal),
       home: Login(),
-      //initialRoute: '/navigator',
+      initialRoute: '/navigator',
       routes: {
         '/login': (context) => Login(),
         '/signUp': (context) => SignUp(),

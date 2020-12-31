@@ -21,7 +21,7 @@ class _MedicationsState extends State<Medications> {
   void initState() {
     super.initState();
     medicationtable = fetchMedications();
-    print(medicationtable.toString());
+    //print(medicationtable.toString());
     //schState = scheduleState ? "On" : "Off";
   }
 
@@ -195,7 +195,9 @@ class _MedicationsState extends State<Medications> {
                   future: medicationtable,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      schState = (snapshot.data.scheduleState) ? "On" : "Off";
+                      schState = (snapshot.data.scheduleState == "true")
+                          ? "On"
+                          : "Off";
                       return SingleChildScrollView(
                         child: Column(
                           children: [
@@ -209,9 +211,10 @@ class _MedicationsState extends State<Medications> {
                                     style: TextStyle(fontSize: 18),
                                   ),
                                   Switch(
-                                    value: (snapshot.data.scheduleState)
-                                        ? true
-                                        : false,
+                                    value:
+                                        (snapshot.data.scheduleState == "true")
+                                            ? true
+                                            : false,
                                     onChanged: (value) {
                                       showDialog(
                                               context: context,
@@ -243,7 +246,7 @@ class _MedicationsState extends State<Medications> {
                                               cardDetails: f,
                                               cardKey: keys,
                                               schState: schState,
-                                              isPill: (f.dose == "")
+                                              isPill: (f.dose == " ")
                                                   ? false
                                                   : true));
                                     })
