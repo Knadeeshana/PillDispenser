@@ -21,7 +21,7 @@ class _SignUpState extends State<SignUp> {
       Dialogs.showLoadingDialog(context, _keyLoader); //invoking login
       var res = await signUpUser(signupdata);
       JsonUser status = JsonUser.fromJson(res);
-      if (status.status == 'signUp Success') {
+      if (status.status == 'success') {
         Navigator.of(_keyLoader.currentContext, rootNavigator: true).pop();
         showDialog(
             context: context,

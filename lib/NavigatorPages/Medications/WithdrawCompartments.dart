@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pill_dispensor/Services.dart';
+import 'package:pill_dispensor/Services/DeviceInteraction_Services.dart';
+import 'package:pill_dispensor/Services/Services.dart';
+import 'package:pill_dispensor/globals.dart' as globals;
+import 'package:pill_dispensor/commonFunc.dart';
 
 class WithdrawCompartments extends StatefulWidget {
   @override
@@ -12,11 +15,23 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
   String requested;
   String submitResult;
   bool taskcompletion;
-  List<String> users = ['Amoxillin', 'Flagyl', "Panadol"];
+  List<String> users;
+
   final GlobalKey<FormState> _formSelectCompartment = GlobalKey<FormState>();
   final GlobalKey<FormState> _formEnterPillCount = GlobalKey<FormState>();
   var serverCom = Map<String, String>();
   var withdrawSubmit = Map<String, String>();
+
+  void initState() {
+    super.initState();
+    users = [];
+    for (Compartment comp in globals.compartments) {
+      users.add(comp.medicine);
+    }
+    print(users);
+    //print(medicationtable.toString());
+    //schState = scheduleState ? "On" : "Off";
+  }
 
   @override
   Future popUpFill() {
@@ -157,7 +172,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                     return null;
                   },
                   onSaved: (value) {
-                    withdrawSubmit['pill count'] = value;
+                    withdrawSubmit['pillCount'] = value;
                   },
                 ),
               )
@@ -189,7 +204,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
 
                       _formEnterPillCount.currentState.save();
                       withdrawCompletion(withdrawSubmit).then((result) {
-                        setState(() {
+                        setState(() async {
                           submitResult = result.processCompletionState;
                           taskcompletion =
                               (submitResult == "success") ? true : false;
@@ -197,7 +212,12 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                           if (taskcompletion) {
                             selectedComp = null;
                             requested = null;
-                            Navigator.pop(context);
+                            successFailureDialog(context, result);
+
+                            await Future.delayed(Duration(seconds: 2));
+
+                            Navigator.popUntil(
+                                context, ModalRoute.withName('/navigator'));
                           }
                         });
                       });

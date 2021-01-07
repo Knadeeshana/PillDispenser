@@ -44,7 +44,7 @@ class _LoginState extends State<Login> {
       Dialogs.showLoadingDialog(context, _keyLoader); //invoking login
       var res = await loginUser(email, password);
       JsonUser status = JsonUser.fromJson(res);
-      if (status.status == 'login Success') {
+      if (status.status == 'success') {
         if (_keepsigned) {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('username', email);

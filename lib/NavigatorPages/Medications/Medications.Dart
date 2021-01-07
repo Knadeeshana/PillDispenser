@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pill_dispensor/commonFunc.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import 'package:pill_dispensor/Services.dart';
+import 'package:pill_dispensor/Services/Services.dart';
 import 'MedicationCard.dart';
 import 'AddMedicine.dart';
-import 'package:pill_dispensor/CommonFunc.dart';
+import 'package:pill_dispensor/globals.dart' as globals;
 
 //Problem in Json Parsing
 
@@ -14,13 +15,13 @@ class Medications extends StatefulWidget {
 }
 
 class _MedicationsState extends State<Medications> {
-  Future<LoadedMedication> medicationtable;
   //bool scheduleState = true; //get val from server
   String schState;
+  final GlobalKey<State> _loading = new GlobalKey<State>();
 
   void initState() {
     super.initState();
-    medicationtable = fetchMedications();
+    globals.medicationtable = fetchMedications();
     //print(medicationtable.toString());
     //schState = scheduleState ? "On" : "Off";
   }
@@ -122,22 +123,33 @@ class _MedicationsState extends State<Medications> {
             ),
           ),
           color: Colors.teal[800],
-          onPressed: () {
+          onPressed: () async {
+            Dialogs.showLoadingDialog(context, _loading);
             //scheduleState = value;
-            Map<String, dynamic> tempMap = {"scheduleState": value};
-            scheduleActDeact(tempMap).then((result) async {
+            Map<String, dynamic> tempMap = {
+              "scheduleState": (value == true) ? "true" : "false"
+            };
+            await scheduleActDeact(tempMap).then((result) async {
+              Navigator.of(_loading.currentContext, rootNavigator: true).pop();
               successFailureDialog(context, result);
-
               await Future.delayed(Duration(seconds: 2));
               Navigator.popUntil(context, ModalRoute.withName('/navigator'));
             });
-            setState(() {});
-            Navigator.pop(context);
+            //
+            //Navigator.pop(context);
             print("changed to ${schState == "Off" ? "On" : "Off"} ");
           },
         ),
       ],
     );
+  }
+
+  void classifier(Compartment compartment) {
+    if (compartment.dose == " ") {
+      globals.liquidMedicine = compartment.medicine;
+    } else if (compartment.medicine != "#") {
+      globals.pillMedicine.add(compartment.medicine);
+    }
   }
 
   @override
@@ -163,14 +175,24 @@ class _MedicationsState extends State<Medications> {
 
                       if (pillorLiquid != null) {
                         bool isPill = (pillorLiquid == "pill") ? true : false;
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AddMedicine(
-                                      medicine: "",
-                                      doseStrength: "",
-                                      isPill: isPill,
-                                    )));
+                        if ((isPill && globals.pillMedicine.length < 8) ||
+                            (!isPill && globals.liquidMedicine != null)) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddMedicine(
+                                        medicine: "",
+                                        doseStrength: "",
+                                        isPill: isPill,
+                                      )));
+                        } else {
+                          errorDialog(context,
+                              "Maximum No. of ${isPill ? "Pill" : "Liquid"} Medicines are Allocated!");
+                          await Future.delayed(Duration(seconds: 2));
+                          Navigator.popUntil(
+                              context, ModalRoute.withName('/navigator'));
+                        }
+                        ;
                       }
                     })),
             Padding(
@@ -181,7 +203,13 @@ class _MedicationsState extends State<Medications> {
                       size: 26.0,
                     ),
                     onTap: () {
-                      Navigator.of(context).pushNamed('/WithdrawCompartments');
+                      Navigator.of(context)
+                          .pushNamed('/WithdrawCompartments')
+                          .then((value) {
+                        setState(() {
+                          globals.medicationtable = fetchMedications();
+                        });
+                      });
                     })),
           ],
           backgroundColor: Colors.teal,
@@ -192,9 +220,23 @@ class _MedicationsState extends State<Medications> {
             mainAxisSize: MainAxisSize.max,
             children: [
               FutureBuilder<LoadedMedication>(
-                  future: medicationtable,
+                  future: globals.medicationtable,
                   builder: (context, snapshot) {
+                    if (snapshot.connectionState != ConnectionState.done) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(50.0),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 5,
+                          ),
+                        ),
+                      );
+                    }
                     if (snapshot.hasData) {
+                      globals.compartments = snapshot.data.compartments;
+                      globals.scheduleState = snapshot.data.scheduleState;
+                      globals.pillMedicine = [];
+                      globals.liquidMedicine = null;
                       schState = (snapshot.data.scheduleState == "true")
                           ? "On"
                           : "Off";
@@ -226,6 +268,8 @@ class _MedicationsState extends State<Medications> {
                                               barrierDismissible: false)
                                           .then((val) {
                                         setState(() {
+                                          globals.medicationtable =
+                                              fetchMedications();
                                           //schState = isSwitched ? "On" : "Off";
                                         });
                                       });
@@ -240,6 +284,9 @@ class _MedicationsState extends State<Medications> {
                                     .asMap()
                                     .map((keys, f) {
                                       //when defined .asmap, indeces can be added to a list
+                                      classifier(
+                                          f); //to classify states of medicine for global variable
+
                                       return MapEntry(
                                           keys,
                                           MedicationCard(

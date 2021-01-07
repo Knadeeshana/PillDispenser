@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import 'package:pill_dispensor/Services.dart';
+import 'package:pill_dispensor/Services/Services.dart';
+import 'package:pill_dispensor/Services/DeviceInteraction_Services.dart';
 import 'package:pill_dispensor/CommonFunc.dart';
 
 class AddMedicine extends StatefulWidget {
@@ -201,6 +202,35 @@ class _AddMedicineState extends State<AddMedicine> {
         _doseStrength = _medicineScheduleMap['doseStrength'] = value;
       },
     );
+  }
+
+  void serverCommunicationAddNew() {
+    addMedicationRequest(_medicineScheduleMap).then((result) async {
+      if (result.processCompletionState == "success") {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Note'),
+                titleTextStyle: TextStyle(
+                    color: Colors.teal[800],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
+                content: Text("Processing successful"),
+              );
+            });
+        await Future.delayed(Duration(seconds: 2));
+        Navigator.popUntil(context, ModalRoute.withName('/navigator'));
+      }
+      setState(() {
+        taskcompletion = (result.processCompletionState != "success") ?? false;
+
+        if (taskcompletion) {
+          requested = null;
+          Navigator.popUntil(context, ModalRoute.withName('/navigator'));
+        }
+      });
+    });
   }
 
   Future popUp() {
@@ -469,51 +499,7 @@ class _AddMedicineState extends State<AddMedicine> {
                                             _formEnterPillCount.currentState
                                                 .save();
 
-                                            addMedicationRequest(
-                                                    _medicineScheduleMap)
-                                                .then((result) async {
-                                              if (result
-                                                      .processCompletionState ==
-                                                  "success") {
-                                                showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return AlertDialog(
-                                                        title: Text('Note'),
-                                                        titleTextStyle:
-                                                            TextStyle(
-                                                                color: Colors
-                                                                    .teal[800],
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontSize: 18),
-                                                        content: Text(
-                                                            "Processing successful"),
-                                                      );
-                                                    });
-                                                await Future.delayed(
-                                                    Duration(seconds: 2));
-                                                Navigator.popUntil(
-                                                    context,
-                                                    ModalRoute.withName(
-                                                        '/navigator'));
-                                              }
-                                              setState(() {
-                                                taskcompletion =
-                                                    (result.processCompletionState !=
-                                                            "success") ??
-                                                        false;
-
-                                                if (taskcompletion) {
-                                                  requested = null;
-                                                  Navigator.popUntil(
-                                                      context,
-                                                      ModalRoute.withName(
-                                                          '/navigator'));
-                                                }
-                                              });
-                                            });
+                                            serverCommunicationAddNew();
                                           }
 
                                           //withdrawCompletion()

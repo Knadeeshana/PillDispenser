@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pill_dispensor/Services_Adherence.dart';
+import 'package:pill_dispensor/Services/Services_Adherence.dart';
 import 'AdherenceCardDetailed.dart';
 
 class AdherenceDispenseCard extends StatelessWidget {

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pill_dispensor/Services.dart';
+import 'package:pill_dispensor/Services/Services.dart';
 import 'AddMedicine.dart';
 import 'package:pill_dispensor/CommonFunc.dart';
+import 'package:pill_dispensor/globals.dart' as globals;
+import 'package:pill_dispensor/main.dart';
+import 'medications.dart';
 
 class MedicationCard extends StatefulWidget {
   final Compartment cardDetails;
@@ -17,6 +20,7 @@ class MedicationCard extends StatefulWidget {
 }
 
 class _MedicationCardState extends State<MedicationCard> {
+  //_MedicationsState parent;
   Compartment card;
   int cardKey;
   String schState;
@@ -93,16 +97,17 @@ class _MedicationCardState extends State<MedicationCard> {
             ),
           ),
           color: Colors.teal[800],
-          onPressed: () {
+          onPressed: () async {
             Map<String, dynamic> tempMap = {"medicine": _medicine};
-            resetSchedule(tempMap).then((result) async {
+            await resetSchedule(tempMap).then((result) async {
               successFailureDialog(context, result);
 
               await Future.delayed(Duration(seconds: 2));
               Navigator.popUntil(context, ModalRoute.withName('/navigator'));
             });
-            Navigator.pop(context); //pops the behind dialog box
+            //Navigator.pop(context); //pops the behind dialog box
             print("$_medicine reset");
+            //this.parent.setState(() {});
           },
         ),
       ],
@@ -228,8 +233,18 @@ class _MedicationCardState extends State<MedicationCard> {
                                   context: context,
                                   builder: (_) => _resetAlert(card.medicine),
                                   barrierDismissible: false)
-                              .then((value) =>
-                                  setState(() {})); //reset the medicine card
+                              .then((value) {
+                            setState(() {
+                              //globals.medicationtable = fetchMedications();
+                            });
+                            Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MyBottomNavigationBar(
+                                          currentIndex: 1,
+                                        )));
+                          }); //reset the medicine card
                         }),
                     FlatButton.icon(
                         label: Text("Add Schedule"),
@@ -245,7 +260,11 @@ class _MedicationCardState extends State<MedicationCard> {
                                         medicine: card.medicine,
                                         doseStrength: card.dose,
                                         isPill: isPill,
-                                      )));
+                                      ))).then((value) {
+                            setState(() {
+                              globals.medicationtable = fetchMedications();
+                            });
+                          });
                         }),
                   ],
                 ),
