@@ -6,7 +6,22 @@ import 'package:pill_dispensor/globals.dart' as globals;
 import 'package:pill_dispensor/main.dart';
 import 'medications.dart';
 
-class MedicationCard extends StatefulWidget {
+class MedicationCard extends StatelessWidget {
+  final Compartment cardDetails;
+  final int cardKey;
+  final String schState;
+  final bool isPill;
+  final parent;
+  MedicationCard(
+      {Key key,
+      this.parent,
+      this.cardDetails,
+      this.cardKey,
+      this.schState,
+      this.isPill})
+      : super(key: key);
+
+/*class MedicationCard extends StatefulWidget {
   final Compartment cardDetails;
   final int cardKey;
   final String schState;
@@ -19,19 +34,19 @@ class MedicationCard extends StatefulWidget {
   _MedicationCardState createState() => _MedicationCardState();
 }
 
-class _MedicationCardState extends State<MedicationCard> {
-  //_MedicationsState parent;
-  Compartment card;
-  int cardKey;
-  String schState;
-  bool isPill;
+class _MedicationCardState extends State<MedicationCard> {*/
 
-  void initState() {
-    card = widget.cardDetails;
-    cardKey = widget.cardKey;
-    isPill = widget.isPill;
-    super.initState();
-  }
+  //Compartment card=cardDetails;
+  //int cardKey;
+  //String schState;
+  //bool isPill;
+
+  // void initState() {
+  //   card = widget.cardDetails;
+  //   cardKey = widget.cardKey;
+  //   isPill = widget.isPill;
+  //   super.initState();
+  // }
 
 //======= Date Conversion Function ======
 
@@ -58,7 +73,7 @@ class _MedicationCardState extends State<MedicationCard> {
   }
 
   //confirmation alert when Delete button pressed
-  Widget _resetAlert(String _medicine) {
+  Widget _resetAlert(String _medicine, BuildContext context) {
     return AlertDialog(
       titleTextStyle: TextStyle(
           color: Colors.teal[800], fontWeight: FontWeight.bold, fontSize: 20),
@@ -107,7 +122,6 @@ class _MedicationCardState extends State<MedicationCard> {
             });
             //Navigator.pop(context); //pops the behind dialog box
             print("$_medicine reset");
-            //this.parent.setState(() {});
           },
         ),
       ],
@@ -116,7 +130,7 @@ class _MedicationCardState extends State<MedicationCard> {
 
   @override
   Widget build(BuildContext context) {
-    schState = widget.schState;
+    //schState = widget.schState;
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Card(
@@ -135,7 +149,7 @@ class _MedicationCardState extends State<MedicationCard> {
                   Padding(
                     padding: EdgeInsets.fromLTRB(15, 15, 15, 0),
                     child: Text(
-                      card.medicine,
+                      cardDetails.medicine,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: schState == "On" ? Colors.teal : Colors.black),
@@ -154,7 +168,8 @@ class _MedicationCardState extends State<MedicationCard> {
                                 ),
                                 Padding(
                                   padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                  child: Text(card.dose, style: TextStyle()),
+                                  child: Text(cardDetails.dose,
+                                      style: TextStyle()),
                                 )
                               ],
                             )
@@ -170,7 +185,8 @@ class _MedicationCardState extends State<MedicationCard> {
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(5, 0, 15, 0),
-                            child: Text(card.pillCount, style: TextStyle()),
+                            child:
+                                Text(cardDetails.pillCount, style: TextStyle()),
                           )
                         ],
                       )
@@ -183,7 +199,7 @@ class _MedicationCardState extends State<MedicationCard> {
                 indent: 10,
                 endIndent: 10,
               ),
-              (card.schedules.length > 1)
+              (cardDetails.schedules.length > 1)
                   ? DataTable(
                       dataRowHeight: 20,
                       columns: [
@@ -193,11 +209,13 @@ class _MedicationCardState extends State<MedicationCard> {
                                 Text(isPill ? "No. of Pills" : "Amount (ml)")),
                       ],
                       rows: [
-                        for (var i = 1; i <= (card.schedules.length) / 6; i++)
+                        for (var i = 1;
+                            i <= (cardDetails.schedules.length) / 6;
+                            i++)
                           DataRow(cells: [
-                            DataCell(Text(timeConverter(card.schedules
+                            DataCell(Text(timeConverter(cardDetails.schedules
                                 .substring((i - 1) * 6, (i - 1) * 6 + 4)))),
-                            DataCell(Text(card.schedules
+                            DataCell(Text(cardDetails.schedules
                                 .substring((i - 1) * 6 + 4, (i - 1) * 6 + 6)))
                           ])
                       ],
@@ -231,21 +249,16 @@ class _MedicationCardState extends State<MedicationCard> {
                         onPressed: () {
                           showDialog(
                                   context: context,
-                                  builder: (_) => _resetAlert(card.medicine),
+                                  builder: (_) => _resetAlert(
+                                      cardDetails.medicine, context),
                                   barrierDismissible: false)
                               .then((value) {
-                            setState(() {
-                              //globals.medicationtable = fetchMedications();
+                            this.parent.setState(() {
+                              globals.medicationtable = fetchMedications();
                             });
-                            Navigator.pop(context);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => MyBottomNavigationBar(
-                                          currentIndex: 1,
-                                        )));
-                          }); //reset the medicine card
-                        }),
+                          });
+                        }), //reset the medicine card
+
                     FlatButton.icon(
                         label: Text("Add Schedule"),
                         icon: Icon(
@@ -257,11 +270,11 @@ class _MedicationCardState extends State<MedicationCard> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AddMedicine(
-                                        medicine: card.medicine,
-                                        doseStrength: card.dose,
+                                        medicine: cardDetails.medicine,
+                                        doseStrength: cardDetails.dose,
                                         isPill: isPill,
                                       ))).then((value) {
-                            setState(() {
+                            this.parent.setState(() {
                               globals.medicationtable = fetchMedications();
                             });
                           });

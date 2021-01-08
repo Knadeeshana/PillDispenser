@@ -184,7 +184,11 @@ class _MedicationsState extends State<Medications> {
                                         medicine: "",
                                         doseStrength: "",
                                         isPill: isPill,
-                                      )));
+                                      ))).then((value) {
+                            setState(() {
+                              globals.medicationtable = fetchMedications();
+                            });
+                          });
                         } else {
                           errorDialog(context,
                               "Maximum No. of ${isPill ? "Pill" : "Liquid"} Medicines are Allocated!");
@@ -290,6 +294,7 @@ class _MedicationsState extends State<Medications> {
                                       return MapEntry(
                                           keys,
                                           MedicationCard(
+                                              parent: this,
                                               cardDetails: f,
                                               cardKey: keys,
                                               schState: schState,

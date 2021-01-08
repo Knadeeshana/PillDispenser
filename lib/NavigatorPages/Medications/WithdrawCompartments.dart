@@ -203,23 +203,21 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                       withdrawSubmit['medicine'] = selectedComp;
 
                       _formEnterPillCount.currentState.save();
-                      withdrawCompletion(withdrawSubmit).then((result) {
-                        setState(() async {
-                          submitResult = result.processCompletionState;
-                          taskcompletion =
-                              (submitResult == "success") ? true : false;
+                      withdrawCompletion(withdrawSubmit).then((result) async {
+                        submitResult = result.processCompletionState;
+                        taskcompletion =
+                            (submitResult == "success") ? true : false;
 
-                          if (taskcompletion) {
-                            selectedComp = null;
-                            requested = null;
-                            successFailureDialog(context, result);
+                        if (taskcompletion) {
+                          selectedComp = null;
+                          requested = null;
+                          successFailureDialog(context, result);
 
-                            await Future.delayed(Duration(seconds: 2));
+                          await Future.delayed(Duration(seconds: 2));
 
-                            Navigator.popUntil(
-                                context, ModalRoute.withName('/navigator'));
-                          }
-                        });
+                          Navigator.popUntil(
+                              context, ModalRoute.withName('/navigator'));
+                        }
                       });
                     }
                   } else {
@@ -239,6 +237,8 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                         }
                       });
                     });
+                    Navigator.popUntil(
+                        context, ModalRoute.withName('/navigator'));
                   }
 
                   //withdrawCompletion()
