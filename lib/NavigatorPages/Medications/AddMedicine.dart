@@ -172,7 +172,10 @@ class _AddMedicineState extends State<AddMedicine> {
       validator: (value) {
         if (value.isEmpty) {
           return 'Medicine Name is Required';
+        } else if (value.contains(" ")) {
+          return 'No Spaces allowed in Medicine Name';
         }
+        ;
         return null;
       },
       onSaved: (value) {
@@ -284,7 +287,12 @@ class _AddMedicineState extends State<AddMedicine> {
                               validator: (value) {
                                 if (value.isEmpty) {
                                   return 'Required *';
+                                } else if ((int.parse(value) > 9) && _isPill) {
+                                  return "Maximum Pills is 9";
+                                } else if ((int.parse(value) < 1) && _isPill) {
+                                  return "At least 1 required";
                                 }
+
                                 return null;
                               },
                               onSaved: (value) {
@@ -458,6 +466,10 @@ class _AddMedicineState extends State<AddMedicine> {
                                     validator: (value) {
                                       if (value.isEmpty) {
                                         return '*required';
+                                      } else if (_isPill &&
+                                          (int.parse(value) > 80) &&
+                                          (int.parse(value) < 1)) {
+                                        return 'Add 0 - 80 pills to the Compartment';
                                       }
                                       return null;
                                     },

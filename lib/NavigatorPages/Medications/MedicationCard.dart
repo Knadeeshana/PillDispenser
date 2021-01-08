@@ -118,9 +118,8 @@ class _MedicationCardState extends State<MedicationCard> {*/
               successFailureDialog(context, result);
 
               await Future.delayed(Duration(seconds: 2));
-              Navigator.popUntil(context, ModalRoute.withName('/navigator'));
             });
-            //Navigator.pop(context); //pops the behind dialog box
+            Navigator.popUntil(context, ModalRoute.withName('/navigator'));
             print("$_medicine reset");
           },
         ),

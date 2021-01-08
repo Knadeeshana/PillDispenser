@@ -175,8 +175,9 @@ class _MedicationsState extends State<Medications> {
 
                       if (pillorLiquid != null) {
                         bool isPill = (pillorLiquid == "pill") ? true : false;
+
                         if ((isPill && globals.pillMedicine.length < 8) ||
-                            (!isPill && globals.liquidMedicine != null)) {
+                            (!isPill && globals.liquidMedicine == null)) {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
