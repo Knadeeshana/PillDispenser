@@ -16,7 +16,7 @@ import 'NavigatorPages/Medications/WithdrawCompartments.dart';
 void main() => runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(accentColor: Colors.teal),
-      home: Login(),
+      //home: Login(),
       initialRoute: '/navigator',
       routes: {
         '/login': (context) => Login(),
@@ -51,8 +51,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   void initState() {
     _currentIndex =
         widget.currentIndex != null ? widget.currentIndex : _currentIndex;
-    _initialSelection =
-        widget.currentIndex != null ? widget.currentIndex : _initialSelection;
+    //_initialSelection = widget.currentIndex != null ? widget.currentIndex : _initialSelection;
     super.initState();
   }
 
@@ -82,7 +81,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
         )*/
           CurvedNavigationBar(
         backgroundColor: Colors.white,
-        index: 3, //initial index
+        index: _currentIndex, //initial index
         color: Colors.teal,
         buttonBackgroundColor: Colors.brown[700],
         height: 60,

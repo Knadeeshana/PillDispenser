@@ -15,13 +15,11 @@ class _QrScannerState extends State<QrScanner> {
 
   Future _scanQR() async {
     try {
-      var scan = await BarcodeScanner.scan();
-      if (scan.rawContent != "") {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => VerifiedDevice(scan.rawContent)));
-      }
+      //var scan = await BarcodeScanner.scan();
+      //if (scan.rawContent != "") {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => VerifiedDevice("1234555")));
+      //}
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
@@ -92,10 +90,12 @@ class VerifiedDevice extends StatelessWidget {
                 future: registerDevice(deviceId),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    String _devicestate = (snapshot.data.deviceStatus) ==
-                            "verified"
+                    String _devicestate = (snapshot.data.registration) ==
+                            "success"
                         ? "Your Dispenser is Linked and Functionality Activated"
-                        : "Invalid QR Code, Try again";
+                        : ((snapshot.data.availableEmail != " ")
+                            ? "This Dispenser is already linked to ${snapshot.data.availableEmail}. Contact Support for More Information"
+                            : "Invalid QR Code, Try again");
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -110,19 +110,19 @@ class VerifiedDevice extends StatelessWidget {
                           height: 20,
                         ),
                         FlatButton(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            child: Text(
+                                (snapshot.data.registration) == "success"
+                                    ? "Continue"
+                                    : "Back"),
+                          ),
                           onPressed: () {
-                            (snapshot.data.deviceStatus) == "verified"
+                            (snapshot.data.registration) == "success"
                                 ? Navigator.popUntil(
                                     context, ModalRoute.withName('/navigator'))
                                 : Navigator.pop(context);
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                            child: Text(
-                                (snapshot.data.deviceStatus) == "verified"
-                                    ? "Continue"
-                                    : "Back"),
-                          ),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                               side: BorderSide(color: Colors.teal, width: 3)),

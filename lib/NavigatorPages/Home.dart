@@ -8,6 +8,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  String numMed = "8";
+
   Widget messageScheduleOff() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -67,8 +69,8 @@ class _HomeState extends State<Home> {
                     decoration: BoxDecoration(
                         color: Colors.teal[900],
                         borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.elliptical(40, 20),
-                            bottomRight: Radius.elliptical(40, 20))),
+                            //bottomLeft: Radius.elliptical(40, 20),
+                            bottomRight: Radius.elliptical(60, 40))),
                     padding: EdgeInsets.all(18),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -102,14 +104,6 @@ class _HomeState extends State<Home> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 30, 10, 10),
-                          child: Text(
-                            "Summary",
-                            style: TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.bold),
-                          ),
-                        ),
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -162,6 +156,71 @@ class _HomeState extends State<Home> {
                             ],
                           ),
                         ),
+                        Container(
+                          child: GridView.count(
+                            childAspectRatio: (3 / 2),
+                            primary: false,
+                            padding: const EdgeInsets.all(20),
+                            crossAxisSpacing: 20,
+                            mainAxisSpacing: 00,
+                            shrinkWrap: true,
+                            crossAxisCount: 2,
+                            //scrollDirection: Axis.vertical,
+                            children: <Widget>[
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              MyBottomNavigationBar(
+                                                currentIndex: 2,
+                                              )));
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.ac_unit,
+                                        size: 40,
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        "$numMed Medicines",
+                                        textScaleFactor: 1.25,
+                                      )
+                                    ],
+                                  ),
+                                  color: Colors.teal[100],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.timer,
+                                      size: 40,
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text(
+                                      "Reminders",
+                                      textScaleFactor: 1.25,
+                                    )
+                                  ],
+                                ),
+                                color: Colors.teal[200],
+                              ),
+                            ],
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                           child: Text(
@@ -171,7 +230,7 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                         Card(
-                          color: Colors.lightGreen[100],
+                          color: Colors.teal[50],
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10)),
                           elevation: 3,

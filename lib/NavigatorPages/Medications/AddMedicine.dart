@@ -21,7 +21,7 @@ class _AddMedicineState extends State<AddMedicine> {
   final GlobalKey<FormState> _formKeyadddose = GlobalKey<FormState>();
   Map<String, String> _medicineScheduleMap = {
     'medicine': null,
-    'doseStrength': null,
+    'doseStrength': "0",
     'schedules': " ",
   };
   String _scheduleMap = "";
@@ -41,10 +41,10 @@ class _AddMedicineState extends State<AddMedicine> {
 
   void initState() {
     _medicine = widget.medicine;
-    _doseStrength = widget.doseStrength;
+    _doseStrength = (widget.doseStrength == "0") ? null : widget.doseStrength;
     _isPill = widget.isPill;
     textFieldEnable =
-        (widget.medicine == "" && widget.doseStrength == "") ? true : false;
+        (widget.medicine == "" && widget.doseStrength == "0") ? true : false;
     super.initState();
   }
 
@@ -174,8 +174,9 @@ class _AddMedicineState extends State<AddMedicine> {
           return 'Medicine Name is Required';
         } else if (value.contains(" ")) {
           return 'No Spaces allowed in Medicine Name';
+        } else if (value.length > 15) {
+          return 'Maximum Number of characters is 15';
         }
-        ;
         return null;
       },
       onSaved: (value) {
@@ -224,14 +225,24 @@ class _AddMedicineState extends State<AddMedicine> {
             });
         await Future.delayed(Duration(seconds: 2));
         Navigator.popUntil(context, ModalRoute.withName('/navigator'));
+      } else if (result.processCompletionState == "fail") {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Note'),
+                titleTextStyle: TextStyle(
+                    color: Colors.teal[800],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
+                content: Text("Processing Failed. Try Again"),
+              );
+            });
+        await Future.delayed(Duration(seconds: 3));
+        Navigator.popUntil(context, ModalRoute.withName('/navigator'));
       }
       setState(() {
         taskcompletion = (result.processCompletionState != "success") ?? false;
-
-        if (taskcompletion) {
-          requested = null;
-          Navigator.popUntil(context, ModalRoute.withName('/navigator'));
-        }
       });
     });
   }
@@ -474,7 +485,11 @@ class _AddMedicineState extends State<AddMedicine> {
                                       return null;
                                     },
                                     onSaved: (value) {
-                                      _medicineScheduleMap['pillCount'] = value;
+                                      (_isPill)
+                                          ? _medicineScheduleMap['pillCount'] =
+                                              value
+                                          : _medicineScheduleMap['pillCount'] =
+                                              '0' + value;
                                     },
                                   ),
                                 ),

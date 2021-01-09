@@ -45,9 +45,10 @@ class _LoginState extends State<Login> {
       var res = await loginUser(email, password);
       JsonUser status = JsonUser.fromJson(res);
       if (status.status == 'success') {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        //prefs.setString('deviceID', value)
+        prefs.setString('username', email);
         if (_keepsigned) {
-          final SharedPreferences prefs = await SharedPreferences.getInstance();
-          prefs.setString('username', email);
           prefs.setString('password', password);
         }
         Navigator.of(_keyLoader.currentContext, rootNavigator: true).pop();

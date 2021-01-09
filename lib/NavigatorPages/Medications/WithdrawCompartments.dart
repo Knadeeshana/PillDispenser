@@ -234,11 +234,11 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                           selectedComp = null;
                           requested = null;
                           //Navigator.pop(context);
+                          Navigator.popUntil(
+                              context, ModalRoute.withName('/navigator'));
                         }
                       });
                     });
-                    Navigator.popUntil(
-                        context, ModalRoute.withName('/navigator'));
                   }
 
                   //withdrawCompletion()

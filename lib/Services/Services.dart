@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:pill_dispensor/globals.dart' as globals;
+import 'package:shared_preferences/shared_preferences.dart';
 
-String deviceid = '456578';
+String deviceid = '1234555';
 //=============================================================
 
 editPatient(String salutation, String firstName, String lastName) {
@@ -23,14 +24,20 @@ Future<LoadedMedication> fetchMedications() async {
   var map = Map<String, dynamic>();
   map['deviceid'] = deviceid;
   map['task'] = "getAllMedicines";
+  print(map);
   try {
     final jsonresponses =
         await http.post('http://192.248.10.68:8081/bakabaka/info', body: map);
     //print(jsonresponses.statusCode);
     if (jsonresponses.statusCode == 200 || jsonresponses.statusCode == 201) {
       final jsonresponse = json.decode(jsonresponses.body);
-      print(jsonresponses.body.toString());
+
       LoadedMedication medications = LoadedMedication.fromJson(jsonresponse);
+      print(jsonresponses.body.toString());
+      medications.compartments
+          .removeWhere((element) => element.medicine == "#");
+
+      //print(jsonresponses.body.toString());
       return medications;
     }
     //String jsonresponses =      '{"deviceid":"456578","scheduleState":"true","compartments":[{ "medicine":"Amoxillin","dose":"200","pill count":"50","schedules":"055005"},{ "medicine":"Panadol","dose":"220","pill count":"70","schedules":"015010170001235903"},{"medicine":"Pawatta","dose":"","pill count":"350","schedules":"100005180010000005" } ]}';
@@ -88,26 +95,39 @@ class Compartment {
 //=======To Register the Pill dispenser by QR Scanning======
 Future<DeviceVerifier> registerDevice(deviceId) async {
   var map = Map<String, dynamic>();
-  map['action'] = 'REGISTER DEVICE';
-  map['device_id'] = deviceId;
+  map['task'] = 'Register';
+  map['deviceid'] = deviceId;
+  //map['status'] = globals.scheduleState;
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  map['email'] = prefs.getString('username');
+
+  print(map.toString());
+  final jsonresponse = await http
+      .post('http://192.248.10.68:8081/bakabaka/adddevice', body: map);
+
   //final response =await http.post('http://192.168.137.1/phplessons/flutter.php',body: map);
   //print(response.body.toString());
-  String jsonresponse = '[{"deviceStatus": "verified"}]';
-  final jsonResponse = json.decode(jsonresponse);
-  DeviceVerifier status = new DeviceVerifier.fromJson(jsonResponse[0]);
-  //print(album.hometable[1].medicine);
-  print(status.deviceStatus);
+  //String jsonresponse = '[{"registration": "verified"}]';
+  print(jsonresponse.body.toString());
+  final jsonResponse = json.decode(jsonresponse.body);
+  DeviceVerifier status = new DeviceVerifier.fromJson(jsonResponse);
+  print(status.registration);
+  print(status.availableEmail);
   return (status);
 }
 
 class DeviceVerifier {
-  final String deviceStatus;
+  final String registration;
+  final String availableEmail;
 
-  DeviceVerifier({this.deviceStatus});
+  DeviceVerifier({this.registration, this.availableEmail});
 
   factory DeviceVerifier.fromJson(Map<String, dynamic> json) {
     //print("hi");
-    return DeviceVerifier(deviceStatus: json['deviceStatus']);
+    return DeviceVerifier(
+      registration: json['registration'],
+      availableEmail: json['email'],
+    );
   }
 }
 

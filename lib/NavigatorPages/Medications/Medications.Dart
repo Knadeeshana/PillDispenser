@@ -145,7 +145,7 @@ class _MedicationsState extends State<Medications> {
   }
 
   void classifier(Compartment compartment) {
-    if (compartment.dose == " ") {
+    if (compartment.dose == "0") {
       globals.liquidMedicine = compartment.medicine;
     } else if (compartment.medicine != "#") {
       globals.pillMedicine.add(compartment.medicine);
@@ -175,15 +175,16 @@ class _MedicationsState extends State<Medications> {
 
                       if (pillorLiquid != null) {
                         bool isPill = (pillorLiquid == "pill") ? true : false;
-
-                        if ((isPill && globals.pillMedicine.length < 8) ||
+                        print(globals.pillMedicine.toString());
+                        print(globals.liquidMedicine.toString());
+                        if ((isPill && globals.pillMedicine.length < 9) ||
                             (!isPill && globals.liquidMedicine == null)) {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AddMedicine(
                                         medicine: "",
-                                        doseStrength: "",
+                                        doseStrength: "0",
                                         isPill: isPill,
                                       ))).then((value) {
                             setState(() {
@@ -299,7 +300,7 @@ class _MedicationsState extends State<Medications> {
                                               cardDetails: f,
                                               cardKey: keys,
                                               schState: schState,
-                                              isPill: (f.dose == " ")
+                                              isPill: (f.dose == "0")
                                                   ? false
                                                   : true));
                                     })
