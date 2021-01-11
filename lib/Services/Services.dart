@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:pill_dispensor/globals.dart' as globals;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math';
 
-String deviceid = '1234555';
 //=============================================================
 
 editPatient(String salutation, String firstName, String lastName) {
@@ -22,7 +22,7 @@ editPatient(String salutation, String firstName, String lastName) {
 
 Future<LoadedMedication> fetchMedications() async {
   var map = Map<String, dynamic>();
-  map['deviceid'] = deviceid;
+  map['deviceid'] = globals.deviceID;
   map['task'] = "getAllMedicines";
   print(map);
   try {
@@ -58,7 +58,7 @@ class LoadedMedication {
 
   factory LoadedMedication.fromJson(Map<String, dynamic> parsedJson) {
     var list = parsedJson['compartments'] as List;
-    print(list.runtimeType);
+
     List<Compartment> imagesList =
         list.map((i) => Compartment.fromJson(i)).toList();
 
@@ -105,8 +105,6 @@ Future<DeviceVerifier> registerDevice(deviceId) async {
   final jsonresponse = await http
       .post('http://192.248.10.68:8081/bakabaka/adddevice', body: map);
 
-  //final response =await http.post('http://192.168.137.1/phplessons/flutter.php',body: map);
-  //print(response.body.toString());
   //String jsonresponse = '[{"registration": "verified"}]';
   print(jsonresponse.body.toString());
   final jsonResponse = json.decode(jsonresponse.body);
@@ -119,15 +117,16 @@ Future<DeviceVerifier> registerDevice(deviceId) async {
 class DeviceVerifier {
   final String registration;
   final String availableEmail;
+  final String deviceId;
 
-  DeviceVerifier({this.registration, this.availableEmail});
+  DeviceVerifier({this.registration, this.availableEmail, this.deviceId});
 
   factory DeviceVerifier.fromJson(Map<String, dynamic> json) {
     //print("hi");
     return DeviceVerifier(
-      registration: json['registration'],
-      availableEmail: json['email'],
-    );
+        registration: json['registration'],
+        availableEmail: json['email'],
+        deviceId: json['deviceId']);
   }
 }
 
@@ -135,7 +134,7 @@ class DeviceVerifier {
 
 Future<ScheduleAdjustCompletion> modifyMedicineSchedule(Map appendmap) async {
   var map = Map<String, dynamic>();
-  map['deviceid'] = deviceid;
+  map['deviceid'] = globals.deviceID;
   map['status'] = globals.scheduleState;
   map.addAll(appendmap);
   print(map.toString());
@@ -158,7 +157,7 @@ Future<ScheduleActDeact> scheduleActDeact(Map appendmap) async {
 //appendmap sends scheduleState = true or false.
 
   var map = Map<String, dynamic>();
-  map['deviceid'] = deviceid;
+  map['deviceid'] = globals.deviceID;
   map['task'] = "scheduleActivation";
   map.addAll(appendmap);
 
@@ -199,7 +198,7 @@ Future<ScheduleAdjustCompletion> resetSchedule(Map appendmap) async {
 //appendmap sends scheduleState = true or false.
 
   var map = Map<String, dynamic>();
-  map['deviceid'] = deviceid;
+  map['deviceid'] = globals.deviceID;
   map['task'] = "resetSchedule";
   map.addAll(appendmap);
   map["schedules"] = "";
@@ -233,4 +232,154 @@ class ScheduleAdjustCompletion {
       processCompletionState: parsedJson['processCompletionState'],
     );
   }
+}
+
+Future<HomeScreen> homescreenfetcher() async {
+  var map = Map<String, String>();
+  map['deviceid'] = globals.deviceID; //= "1234555";
+  print(map.toString());
+  // try {
+  final jsonresponses =
+      await http.post('http://192.248.10.68:8081/bakabaka/home', body: map);
+  print(jsonresponses.body.toString());
+  final jsonresponse = json.decode(jsonresponses.body);
+  HomeScreen homedata = HomeScreen.fromJson(jsonresponse);
+  print(homedata.patientName);
+  List closestSchedule = findnextsched(homedata.compartments);
+  homedata.nextScheduleDate = closestSchedule[0].toString();
+  homedata.nextScheduleTime = closestSchedule[1].toString();
+  homedata.nextSchedMedicineCount = closestSchedule[2].toString();
+  print(closestSchedule[0]);
+  return homedata;
+  /*
+    if (jsonresponses.statusCode == 200 || jsonresponses.statusCode == 201) {
+      final jsonresponse = json.decode(jsonresponses.body);
+
+      HomeScreen homedata = HomeScreen.fromJson(jsonresponse);
+      print(jsonresponses.body.toString());
+      await Future.delayed(Duration(seconds: 2)); //for testing
+      //print(jsonresponses.body.toString());
+      return homedata;
+    }*/
+  // } on SocketException {
+  //   throw Exception('No Internet connection');
+  // } on Error catch (e) {
+  //   print("error  $e");
+  // }
+  // return null;
+}
+
+class HomeScreen {
+  final String deviceid;
+  final String patientName;
+  final String scheduleState;
+  String nextScheduleDate;
+  String nextScheduleTime;
+  String nextSchedMedicineCount;
+  final String totalMedicine;
+  final List<Compartment> compartments;
+  HomeScreen(
+      {this.deviceid,
+      this.patientName,
+      this.nextSchedMedicineCount,
+      this.nextScheduleDate,
+      this.nextScheduleTime,
+      this.scheduleState,
+      this.totalMedicine,
+      this.compartments});
+
+  factory HomeScreen.fromJson(Map<String, dynamic> parsedJson) {
+    var list = parsedJson['compartments'] as List;
+
+    List<Compartment> compList =
+        list.map((i) => Compartment.fromJson(i)).toList();
+    return HomeScreen(
+        deviceid: parsedJson['deviceid'],
+        patientName: parsedJson['patientName'],
+        scheduleState: parsedJson['scheduleState'],
+        totalMedicine: parsedJson['activeComps'],
+        compartments: compList);
+  }
+}
+
+List findnextsched(List<Compartment> comp) {
+  Map<int, DateTime> closestScheds = {};
+  Map<int, String> closestSchedPills = {};
+  // List<String> medicinesIndeces;
+
+  //loop for each medicine and get the closest schedule and pills to current time into a Map.
+  for (int element = 0; element < comp.length; element++) {
+    Map<DateTime, String> scheduleInfo =
+        decodeSchedule(comp[element].schedules);
+    //print(scheduleInfo);
+    DateTime closestScheduleEach;
+
+    if (scheduleInfo.isNotEmpty) {
+      var currentTime = new DateTime.now();
+      closestScheduleEach = scheduleInfo.keys.reduce((a, b) =>
+          a.difference(currentTime).abs() < b.difference(currentTime).abs()
+              ? a
+              : b);
+      closestScheds[element] = closestScheduleEach;
+      closestSchedPills[element] = scheduleInfo[closestScheduleEach];
+    }
+
+    //print("closest $closestScheduleEach");
+  }
+
+  //Iterate through the selected closest schedules of each medicine and find closest schedule and medicine counts
+  var currentTime = new DateTime.now();
+  //print("current time $currentTime");
+  DateTime closestSchedule;
+  int count = 0;
+  if (closestScheds.isNotEmpty) {
+    closestSchedule = closestScheds.values.reduce((a, b) =>
+        a.difference(currentTime).abs() < b.difference(currentTime).abs()
+            ? a
+            : b);
+    for (int medi = 0; medi < 9; medi++) {
+      if (closestScheds[medi].toString() == closestSchedule.toString()) {
+        count++;
+      }
+    }
+    print("medicines with closest Schedules $count");
+    print("Closest Schedule ${closestSchedule.toString().substring(0, 16)}");
+    //print(closestScheds.toString());
+    //print(closestSchedPills.toString());
+    //print(closestSchedule.toString());
+
+    return [
+      closestSchedule.toString().substring(0, 11),
+      closestSchedule.toString().substring(11, 16),
+      count
+    ];
+  }
+  return ["0", "0", "No"];
+}
+
+//return a map of schedule times : number of pills for each medicine's schedules sent in.
+Map<DateTime, String> decodeSchedule(String schedule) {
+  //print(schedule);
+  Map<DateTime, String> scheduleInfo = {};
+  if (schedule.length >= 6) {
+    for (int i = 0; i < schedule.length / 6; i++) {
+      DateTime scheduleTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          int.parse(schedule.substring(6 * i, 6 * i + 2)),
+          int.parse(schedule.substring(6 * i + 2, 6 * i + 4)));
+      //print("Schedule time is $scheduleTime");
+      if (DateTime.now().isAfter(scheduleTime)) {
+        scheduleTime = DateTime(
+            DateTime.now().add(new Duration(days: 1)).year,
+            DateTime.now().add(new Duration(days: 1)).month,
+            DateTime.now().add(new Duration(days: 1)).day,
+            int.parse(schedule.substring(6 * i, 6 * i + 2)),
+            int.parse(schedule.substring(6 * i + 2, 6 * i + 4)));
+      }
+      scheduleInfo[scheduleTime] = schedule.substring(6 * i + 4, 6 * i + 6);
+    }
+  }
+  return scheduleInfo;
 }

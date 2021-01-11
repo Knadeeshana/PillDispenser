@@ -13,10 +13,10 @@ Future<dynamic> loginUser(String email, String password) async {
     print(email.length);
     print("$email and $password");
     var response = await http.post(_url, body: map);
-
+    print(response.body.toString());
     //var response = '{"authentication":"success"}';
     var jsonResponse = json.decode(response.body);
-    print(jsonResponse.toString());
+
     await Future.delayed(Duration(seconds: 2));
     return jsonResponse;
 
@@ -38,7 +38,8 @@ Future<dynamic> loginUser(String email, String password) async {
 Future<dynamic> signUpUser(signupdata) async {
   var map = Map<String, String>();
   //map['deviceid'] = deviceid;
-  map['name'] = signupdata['first name'] + signupdata['last name'];
+  map['name'] = signupdata['first name'];
+  map['surname'] = signupdata['last name'];
   map['email'] = signupdata['email'];
   map['password'] = signupdata['password'];
 

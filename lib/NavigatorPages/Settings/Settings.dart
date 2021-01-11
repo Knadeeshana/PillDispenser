@@ -49,7 +49,7 @@ class Settings extends StatelessWidget {
             Card(
               child: ListTile(
                 leading: Icon(Icons.scanner),
-                title: Text('Device Scanner'),
+                title: Text('Device Registration'),
                 trailing: Icon(Icons.more_vert),
                 onTap: () => Navigator.of(context).pushNamed('/QRscan'),
               ),

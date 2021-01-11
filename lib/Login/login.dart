@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'json_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pill_dispensor/CommonFunc.dart';
+import 'package:pill_dispensor/globals.dart' as globals;
 
 class Login extends StatefulWidget {
   @override
@@ -52,7 +53,14 @@ class _LoginState extends State<Login> {
           prefs.setString('password', password);
         }
         Navigator.of(_keyLoader.currentContext, rootNavigator: true).pop();
-        Navigator.pushReplacementNamed(context, '/navigator');
+
+        globals.deviceID = status.deviceId;
+        print(globals.deviceID);
+        if (status.deviceId == "#") {
+          Navigator.pushReplacementNamed(context, '/QRscan');
+        } else {
+          Navigator.pushReplacementNamed(context, '/navigator');
+        }
       } else {
         Navigator.of(_keyLoader.currentContext, rootNavigator: true).pop();
         Scaffold.of(context)

@@ -11,7 +11,7 @@ Future<WithdrawAssist> withdrawRequest(Map appendmap) async {
 // request returns data in format '{"deviceid":"456578","requestState":"success"/"fail"}'
 
   var map = Map<String, String>();
-  map['deviceid'] = deviceid;
+  map['deviceid'] = globals.deviceID;
   map['status'] = globals.scheduleState;
 
   map.addAll(appendmap);
@@ -59,7 +59,7 @@ class WithdrawAssist {
 Future<WithdrawAssistCompletion> addMedicationRequest(Map appendmap) async {
   print(appendmap.toString());
   var map = Map<String, dynamic>();
-  map['deviceid'] = deviceid;
+  map['deviceid'] = globals.deviceID;
   map['status'] = globals.scheduleState;
   //map['compartments']=[{"medicine":appendmap['medicine'],"dosestrength":appendmap['dose strength'],"schedules":appendmap['schedules'],"pills":appendmap['']}]
   map.addAll(appendmap);
@@ -84,7 +84,7 @@ Future<WithdrawAssistCompletion> addMedicationRequest(Map appendmap) async {
 
 Future<WithdrawAssistCompletion> withdrawCompletion(Map appendmap) async {
   var map = Map<String, String>();
-  map['deviceid'] = deviceid;
+  map['deviceid'] = globals.deviceID;
   map['status'] = globals.scheduleState;
   map.addAll(appendmap);
   print(map.toString());

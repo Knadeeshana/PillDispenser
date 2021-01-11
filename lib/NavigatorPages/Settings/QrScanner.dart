@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
 import 'package:pill_dispensor/Services/Services.dart';
+import 'package:pill_dispensor/globals.dart' as globals;
 
 class QrScanner extends StatefulWidget {
   @override
@@ -18,7 +19,7 @@ class _QrScannerState extends State<QrScanner> {
       //var scan = await BarcodeScanner.scan();
       //if (scan.rawContent != "") {
       Navigator.push(context,
-          MaterialPageRoute(builder: (context) => VerifiedDevice("1234555")));
+          MaterialPageRoute(builder: (context) => VerifiedDevice("1234558")));
       //}
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
@@ -90,12 +91,18 @@ class VerifiedDevice extends StatelessWidget {
                 future: registerDevice(deviceId),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    String _devicestate = (snapshot.data.registration) ==
-                            "success"
-                        ? "Your Dispenser is Linked and Functionality Activated"
-                        : ((snapshot.data.availableEmail != " ")
-                            ? "This Dispenser is already linked to ${snapshot.data.availableEmail}. Contact Support for More Information"
-                            : "Invalid QR Code, Try again");
+                    String _devicestate;
+                    //globals.deviceId=snapshot.data.
+                    if (snapshot.data.registration == "success") {
+                      globals.deviceID = (snapshot.data.deviceId);
+                      _devicestate =
+                          "Your Dispenser is Linked and Functionality Activated";
+                    } else if (snapshot.data.availableEmail != " ") {
+                      _devicestate =
+                          "This Dispenser is already linked to ${snapshot.data.availableEmail}. Contact Support for More Information";
+                    } else {
+                      _devicestate = "Invalid QR Code, Try again";
+                    }
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
