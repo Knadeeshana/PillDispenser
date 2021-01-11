@@ -17,6 +17,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
   bool taskcompletion;
   List<String> users;
   Map<String, String> pillRemainders;
+  String liquidMed;
 
   final GlobalKey<FormState> _formSelectCompartment = GlobalKey<FormState>();
   final GlobalKey<FormState> _formEnterPillCount = GlobalKey<FormState>();
@@ -30,6 +31,9 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
     for (Compartment comp in globals.compartments) {
       users.add(comp.medicine);
       pillRemainders[comp.medicine] = comp.pillCount;
+      if (comp.medicine != "#" && comp.dose == "0") {
+        liquidMed = comp.medicine;
+      }
     }
 
     print(users);
@@ -166,18 +170,26 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      labelText: 'Number of Pills'),
+                      labelText: (selectedComp == liquidMed)
+                          ? 'Volume in ml (Approximately)'
+                          : 'Number of Pills'),
                   inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
                   keyboardType: TextInputType.numberWithOptions(),
                   validator: (value) {
+                    int max = (selectedComp == liquidMed) ? 350 : 80;
                     print(selectedComp);
                     if (value.isEmpty) {
                       return '*required';
                     } else if (serverCom['task'] == "Refill" &&
                         (int.parse(pillRemainders[selectedComp]) +
                                 int.parse(value)) >
-                            80) {
-                      return 'Maximum Capacity Exceeded. Fill only ${80 - int.parse(pillRemainders[selectedComp])}. ';
+                            max) {
+                      return 'Maximum Capacity Exceeded. Fill only ${max - int.parse(pillRemainders[selectedComp])}. ';
+                    } else if (serverCom['task'] == "Withdraw" &&
+                        (int.parse(pillRemainders[selectedComp]) -
+                                int.parse(value)) <
+                            0) {
+                      return 'Only ${pillRemainders[selectedComp]} available. ';
                     }
                     return null;
                   },

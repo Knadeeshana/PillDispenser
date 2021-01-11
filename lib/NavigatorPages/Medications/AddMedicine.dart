@@ -509,12 +509,12 @@ class _AddMedicineState extends State<AddMedicine> {
                                     keyboardType:
                                         TextInputType.numberWithOptions(),
                                     validator: (value) {
+                                      int maxVol = _isPill ? 80 : 350;
                                       if (value.isEmpty) {
                                         return '*required';
-                                      } else if (_isPill &&
-                                              (int.parse(value) > 80) ||
+                                      } else if ((int.parse(value) > maxVol) ||
                                           (int.parse(value) < 1)) {
-                                        return 'Add 0 - 80 pills to the Compartment';
+                                        return 'Add 0 - $maxVol ${(_isPill ? 'pills' : 'volume')} to the Compartment';
                                       }
                                       return null;
                                     },
