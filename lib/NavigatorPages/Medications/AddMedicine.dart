@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import 'package:pill_dispensor/Services/Services.dart';
 import 'package:pill_dispensor/Services/DeviceInteraction_Services.dart';
 import 'package:pill_dispensor/CommonFunc.dart';
+import 'package:pill_dispensor/time_pick.dart';
 
 class AddMedicine extends StatefulWidget {
   final String schedule;
   final String medicine;
   final String doseStrength;
   final bool isPill;
+
   const AddMedicine(
       {this.schedule, this.medicine, this.doseStrength, this.isPill});
   @override
@@ -41,6 +42,8 @@ class _AddMedicineState extends State<AddMedicine> {
   String requested;
   final GlobalKey<FormState> _formEnterPillCount = GlobalKey<FormState>();
   bool taskcompletion;
+
+  var _availableHours = new List<int>.generate(25, (i) => i);
 
   void initState() {
     _medicine = widget.medicine;
@@ -275,6 +278,29 @@ class _AddMedicineState extends State<AddMedicine> {
                           Expanded(
                               child: FlatButton(
                                   onPressed: () {
+                                    showCustomTimePicker(
+                                        context: context,
+                                        // It is a must if you provide selectableTimePredicate
+                                        onFailValidation: (context) =>
+                                            showMessage(context,
+                                                'Unavailable selection.'),
+                                        initialTime: TimeOfDay(
+                                            hour: _availableHours.first,
+                                            minute: 0),
+                                        selectableTimePredicate: (time) =>
+                                            _availableHours
+                                                    .indexOf(time.hour) !=
+                                                -1 &&
+                                            time.minute % 10 == 0).then((time) {
+                                      setState(() {
+                                        __time = (time == null)
+                                            ? null
+                                            : time.toString().substring(10, 15);
+                                      });
+                                    });
+                                  },
+
+                                  /*{
                                     DatePicker.showTime12hPicker(context,
                                         showTitleActions: true,
                                         theme: DatePickerTheme(
@@ -283,10 +309,11 @@ class _AddMedicineState extends State<AddMedicine> {
                                       setState(() {
                                         __time =
                                             time.toString().substring(11, 16);
+                                        print(__time);
                                         _color = Colors.blue;
                                       });
                                     }, currentTime: DateTime.now());
-                                  },
+                                  },*/
                                   child: Text(
                                     (__time != null) ? __time : "Add Time",
                                     style: TextStyle(color: _color),
@@ -485,7 +512,7 @@ class _AddMedicineState extends State<AddMedicine> {
                                       if (value.isEmpty) {
                                         return '*required';
                                       } else if (_isPill &&
-                                          (int.parse(value) > 80) &&
+                                              (int.parse(value) > 80) ||
                                           (int.parse(value) < 1)) {
                                         return 'Add 0 - 80 pills to the Compartment';
                                       }
@@ -649,3 +676,38 @@ class _AddMedicineState extends State<AddMedicine> {
         }));
   }
 }
+
+//for timepicker validation
+showMessage(BuildContext context, String message) => showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 16,
+            ),
+            Icon(
+              Icons.warning,
+              color: Colors.amber,
+              size: 56,
+            ),
+            SizedBox(
+              height: 12,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Color(0xFF231F20),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
