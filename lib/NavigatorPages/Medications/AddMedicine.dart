@@ -8,10 +8,12 @@ import 'package:pill_dispensor/Services/DeviceInteraction_Services.dart';
 import 'package:pill_dispensor/CommonFunc.dart';
 
 class AddMedicine extends StatefulWidget {
+  final String schedule;
   final String medicine;
   final String doseStrength;
   final bool isPill;
-  const AddMedicine({this.medicine, this.doseStrength, this.isPill});
+  const AddMedicine(
+      {this.schedule, this.medicine, this.doseStrength, this.isPill});
   @override
   _AddMedicineState createState() => _AddMedicineState();
 }
@@ -25,6 +27,7 @@ class _AddMedicineState extends State<AddMedicine> {
     'schedules': " ",
   };
   String _scheduleMap = "";
+  String oldSchedule;
   String _medicine;
   String _doseStrength;
   bool _isPill = true;
@@ -45,10 +48,14 @@ class _AddMedicineState extends State<AddMedicine> {
     _isPill = widget.isPill;
     textFieldEnable =
         (widget.medicine == "" && widget.doseStrength == "0") ? true : false;
+    oldSchedule = widget.schedule;
+    print(oldSchedule);
     super.initState();
   }
 
   void submitAdjustSchedule(_medicineScheduleMap) {
+    _medicineScheduleMap['schedules'] =
+        (_medicineScheduleMap['schedules'] + oldSchedule);
     Navigator.pop(context);
     modifyMedicineSchedule(_medicineScheduleMap).then((result) async {
       successFailureDialog(context, result);

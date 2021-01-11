@@ -266,13 +266,14 @@ class _MedicationCardState extends State<MedicationCard> {*/
                         ),
                         onPressed: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AddMedicine(
-                                        medicine: cardDetails.medicine,
-                                        doseStrength: cardDetails.dose,
-                                        isPill: isPill,
-                                      ))).then((value) {
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddMedicine(
+                                          medicine: cardDetails.medicine,
+                                          doseStrength: cardDetails.dose,
+                                          isPill: isPill,
+                                          schedule: cardDetails.schedules)))
+                              .then((value) {
                             this.parent.setState(() {
                               globals.medicationtable = fetchMedications();
                             });
