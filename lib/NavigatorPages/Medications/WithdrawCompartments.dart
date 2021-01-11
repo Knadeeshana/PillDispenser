@@ -16,6 +16,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
   String submitResult;
   bool taskcompletion;
   List<String> users;
+  Map<String, String> pillRemainders;
 
   final GlobalKey<FormState> _formSelectCompartment = GlobalKey<FormState>();
   final GlobalKey<FormState> _formEnterPillCount = GlobalKey<FormState>();
@@ -25,9 +26,12 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
   void initState() {
     super.initState();
     users = [];
+    pillRemainders = {};
     for (Compartment comp in globals.compartments) {
       users.add(comp.medicine);
+      pillRemainders[comp.medicine] = comp.pillCount;
     }
+
     print(users);
     //print(medicationtable.toString());
     //schState = scheduleState ? "On" : "Off";
@@ -55,7 +59,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                             }
                           },
                           value: selectedComp,
-                          items: users.map((String user) {
+                          items: pillRemainders.keys.map((String user) {
                             return DropdownMenuItem<String>(
                               value: user,
                               child: Text(
@@ -166,8 +170,14 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                   inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
                   keyboardType: TextInputType.numberWithOptions(),
                   validator: (value) {
+                    print(selectedComp);
                     if (value.isEmpty) {
                       return '*required';
+                    } else if (serverCom['task'] == "Refill" &&
+                        (int.parse(pillRemainders[selectedComp]) +
+                                int.parse(value)) >
+                            80) {
+                      return 'Maximum Capacity Exceeded. Fill only ${80 - int.parse(pillRemainders[selectedComp])}. ';
                     }
                     return null;
                   },
