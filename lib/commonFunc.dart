@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-Future successFailureDialog(BuildContext context, result) async {
+Future successFailureDialog(BuildContext context, result,
+    {bool deviceOpen}) async {
+  deviceOpen = deviceOpen && true;
   return showDialog(
       context: context,
       builder: (context) {
@@ -11,7 +13,9 @@ Future successFailureDialog(BuildContext context, result) async {
               fontWeight: FontWeight.bold,
               fontSize: 18),
           content: Text((result.processCompletionState == "fail")
-              ? "Server Busy. Try again"
+              ? ((deviceOpen)
+                  ? "Close the Device and Try again"
+                  : "Server Busy. Try again")
               : "Processing successful"),
         );
       });

@@ -117,7 +117,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                       padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                       child: (requested == "success")
                           ? Text(
-                              (serverCom['task'] == "Remove")
+                              (serverCom['task'] == "Delete")
                                   ? "Click the Main Button on device and wait for it to Open. Once the Removal is completed press Submit button Below"
                                   : "Click the Main Button on device and wait for it to Open. Once the ${serverCom['task']} is completed, Fill the Number of Pills ${(serverCom['task'] == "Refill") ? "inserted" : "taken out"}.",
                               textAlign: TextAlign.center,
@@ -160,7 +160,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
   Widget requestedExtensionDialog() {
     return Column(
       children: [
-        (serverCom['task'] != "Remove")
+        (serverCom['task'] != "Delete")
             ? Form(
                 key: _formEnterPillCount,
                 child: TextFormField(
@@ -219,7 +219,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                 ),
                 color: Colors.teal[800],
                 onPressed: () {
-                  if (serverCom['task'] != "Remove") {
+                  if (serverCom['task'] != "Delete") {
                     if (_formEnterPillCount.currentState.validate()) {
                       withdrawSubmit['task'] = serverCom['task'];
                       withdrawSubmit['medicine'] = selectedComp;
@@ -229,16 +229,15 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
                         submitResult = result.processCompletionState;
                         taskcompletion =
                             (submitResult == "success") ? true : false;
-
+                        successFailureDialog(context, result, deviceOpen: true);
+                        await Future.delayed(Duration(seconds: 2));
                         if (taskcompletion) {
                           selectedComp = null;
                           requested = null;
-                          successFailureDialog(context, result);
-
-                          await Future.delayed(Duration(seconds: 2));
-
                           Navigator.popUntil(
                               context, ModalRoute.withName('/navigator'));
+                        } else {
+                          Navigator.pop(context);
                         }
                       });
                     }
@@ -273,7 +272,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Refil - Withdraw - Remove"),
+        title: Text("Refill - Withdraw - Remove"),
         backgroundColor: Colors.teal,
       ),
       body: Container(
@@ -313,7 +312,7 @@ class _WithdrawCompartmentsState extends State<WithdrawCompartments> {
             ),
             FlatButton(
               onPressed: () {
-                serverCom['task'] = 'Remove';
+                serverCom['task'] = 'Delete';
                 popUpFill();
               },
               child: Text(

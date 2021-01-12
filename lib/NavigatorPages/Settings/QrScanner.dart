@@ -3,6 +3,7 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
 import 'package:pill_dispensor/Services/Services.dart';
 import 'package:pill_dispensor/globals.dart' as globals;
+import 'dart:math';
 
 class QrScanner extends StatefulWidget {
   @override
@@ -18,8 +19,17 @@ class _QrScannerState extends State<QrScanner> {
     try {
       //var scan = await BarcodeScanner.scan();
       //if (scan.rawContent != "") {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => VerifiedDevice("1234558")));
+
+      //Remove the hard coded random number and uncomment above lines for QR code scanner
+      Random random = new Random();
+      String randomNumber = (random.nextInt(100) + 123000).toString();
+      String devId = globals.deviceID;
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  VerifiedDevice((devId == "#") ? randomNumber : devId)));
       //}
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {

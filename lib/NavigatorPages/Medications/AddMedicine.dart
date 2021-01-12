@@ -245,11 +245,12 @@ class _AddMedicineState extends State<AddMedicine> {
                     color: Colors.teal[800],
                     fontWeight: FontWeight.bold,
                     fontSize: 18),
-                content: Text("Processing Failed. Try Again"),
+                content: Text(
+                    "Processing Failed. Fix the Compartment and Try Again "),
               );
             });
         await Future.delayed(Duration(seconds: 3));
-        Navigator.popUntil(context, ModalRoute.withName('/navigator'));
+        Navigator.pop(context);
       }
       setState(() {
         taskcompletion = (result.processCompletionState != "success") ?? false;
@@ -446,7 +447,7 @@ class _AddMedicineState extends State<AddMedicine> {
                               color: Colors.teal[800],
                               onPressed: (requested == null)
                                   ? (() {
-                                      serverCom['task'] = "a";
+                                      serverCom['task'] = "A";
                                       print(serverCom.toString());
                                       withdrawRequest(serverCom).then((result) {
                                         setState(() {

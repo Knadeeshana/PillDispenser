@@ -101,7 +101,7 @@ Future<WithdrawAssistCompletion> withdrawCompletion(Map appendmap) async {
         requestURL = 'http://192.248.10.68:8081/bakabaka/tabs';
       }
       break;
-    case "Remove":
+    case "Delete":
       {
         requestURL = 'http://192.248.10.68:8081/bakabaka/remove';
       }
