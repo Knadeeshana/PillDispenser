@@ -259,6 +259,7 @@ class _AddMedicineState extends State<AddMedicine> {
   }
 
   Future popUp() {
+    String _chosenValue;
     return showDialog(
         barrierDismissible: false,
         context: context,
@@ -320,40 +321,77 @@ class _AddMedicineState extends State<AddMedicine> {
                                     style: TextStyle(color: _color),
                                   ))),
                           Expanded(
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                  labelText: _isPill
-                                      ? 'Number of Pills'
-                                      : 'Amount (in ml)'),
-                              initialValue: _time,
-                              inputFormatters: [
-                                WhitelistingTextInputFormatter.digitsOnly
-                              ],
-                              keyboardType: TextInputType.numberWithOptions(),
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'Required *';
-                                } else if ((int.parse(value) > 9) && _isPill) {
-                                  return "Maximum Pills is 9";
-                                } else if ((int.parse(value) < 1) && _isPill) {
-                                  return "At least 1 required";
-                                }
+                            child: _isPill
+                                ? TextFormField(
+                                    decoration: InputDecoration(
+                                        labelText: _isPill
+                                            ? 'Number of Pills'
+                                            : 'Amount (in ml)'),
+                                    initialValue: _time,
+                                    inputFormatters: [
+                                      WhitelistingTextInputFormatter.digitsOnly
+                                    ],
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(),
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Required *';
+                                      } else if ((int.parse(value) > 9) &&
+                                          _isPill) {
+                                        return "Maximum Pills is 9";
+                                      } else if ((int.parse(value) < 1) &&
+                                          _isPill) {
+                                        return "At least 1 required";
+                                      }
+                                      return null;
+                                    },
+                                    onSaved: (value) {
+                                      _scheduleMap = _medicineScheduleMap[
+                                              'schedules'] =
+                                          _updatingSchedules(
+                                              _medicineScheduleMap['schedules'],
+                                              __time,
+                                              value);
 
-                                return null;
-                              },
-                              onSaved: (value) {
-                                _scheduleMap =
-                                    _medicineScheduleMap['schedules'] =
-                                        _updatingSchedules(
-                                            _medicineScheduleMap['schedules'],
-                                            __time,
-                                            value);
-
-                                print(_medicineScheduleMap['schedules']);
-                                //_medicineScheduleMap['schedules']
-                                //  .addAll({'$__time': '$value'});
-                              },
-                            ),
+                                      print(_medicineScheduleMap['schedules']);
+                                      //_medicineScheduleMap['schedules']
+                                      //  .addAll({'$__time': '$value'});
+                                    },
+                                  )
+                                : DropdownButton<String>(
+                                    focusColor: Colors.white,
+                                    value: _chosenValue,
+                                    //elevation: 5,
+                                    style: TextStyle(color: Colors.white),
+                                    iconEnabledColor: Colors.black,
+                                    items: <String>[
+                                      '2.5ml (1/2 tsp)',
+                                      '5.0ml (1 tsp)',
+                                      '7.5ml (1 1/2 tsp)',
+                                      '10.0ml (2 tsp)',
+                                    ].map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    hint: Text(
+                                      "Volume",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    onChanged: (String value) {
+                                      setState(() {
+                                        _chosenValue = value;
+                                      });
+                                    },
+                                  ),
                           ),
                         ],
                       ),
@@ -377,10 +415,33 @@ class _AddMedicineState extends State<AddMedicine> {
                               ),
                               color: Colors.teal[800],
                               onPressed: () {
-                                if (_formKeyadddose.currentState.validate() &
+                                if (_isPill &
+                                    _formKeyadddose.currentState.validate() &
                                     (__time != null)) {
                                   _formKeyadddose.currentState.save();
                                   __time = '';
+                                  Navigator.pop(
+                                    context,
+                                  );
+                                } else if (!_isPill) {
+                                  String tsp;
+                                  if (_chosenValue == '2.5ml (1/2 tsp)') {
+                                    tsp = '1';
+                                  } else if (_chosenValue == '5.0ml (1 tsp)') {
+                                    tsp = '2';
+                                  } else if (_chosenValue ==
+                                      '7.5ml (1 1/2 tsp)') {
+                                    tsp = '3';
+                                  } else if (_chosenValue == '10.0ml (2 tsp)') {
+                                    tsp = '4';
+                                  }
+                                  print(tsp);
+                                  _scheduleMap =
+                                      _medicineScheduleMap['schedules'] =
+                                          _updatingSchedules(
+                                              _medicineScheduleMap['schedules'],
+                                              __time,
+                                              tsp);
                                   Navigator.pop(
                                     context,
                                   );
@@ -505,10 +566,12 @@ class _AddMedicineState extends State<AddMedicine> {
                                             ? 'Number of Pills'
                                             : 'Amount (approx. ml)'),
                                     inputFormatters: [
-                                      WhitelistingTextInputFormatter.digitsOnly
+                                      FilteringTextInputFormatter.allow(
+                                          RegExp(r'^\d+\.?\d{0,2}')) //cheeck
                                     ],
                                     keyboardType:
-                                        TextInputType.numberWithOptions(),
+                                        TextInputType.numberWithOptions(
+                                            decimal: true),
                                     validator: (value) {
                                       int maxVol = _isPill ? 80 : 350;
                                       if (value.isEmpty) {
