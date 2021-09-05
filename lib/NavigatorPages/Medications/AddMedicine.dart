@@ -566,12 +566,10 @@ class _AddMedicineState extends State<AddMedicine> {
                                             ? 'Number of Pills'
                                             : 'Amount (approx. ml)'),
                                     inputFormatters: [
-                                      FilteringTextInputFormatter.allow(
-                                          RegExp(r'^\d+\.?\d{0,2}')) //cheeck
+                                      WhitelistingTextInputFormatter.digitsOnly
                                     ],
                                     keyboardType:
-                                        TextInputType.numberWithOptions(
-                                            decimal: true),
+                                        TextInputType.numberWithOptions(),
                                     validator: (value) {
                                       int maxVol = _isPill ? 80 : 350;
                                       if (value.isEmpty) {

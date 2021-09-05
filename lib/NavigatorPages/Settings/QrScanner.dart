@@ -17,20 +17,25 @@ class _QrScannerState extends State<QrScanner> {
 
   Future _scanQR() async {
     try {
-      //var scan = await BarcodeScanner.scan();
-      //if (scan.rawContent != "") {
+      String devId = globals.deviceID; //retrieve if any device number is linked
+      if (devId != "#") {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => VerifiedDevice(devId)));
+      } else {
+        var scan = await BarcodeScanner.scan();
+        if (scan.rawContent != "") {
+          //Remove the hard coded random number and uncomment above lines for QR code scanner
+          //Random random = new Random();
+          //String randomNumber = (random.nextInt(100) + 123000).toString();
 
-      //Remove the hard coded random number and uncomment above lines for QR code scanner
-      Random random = new Random();
-      String randomNumber = (random.nextInt(100) + 123000).toString();
-      String devId = globals.deviceID;
-
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  VerifiedDevice((devId == "#") ? randomNumber : devId)));
-      //}
+          String randomNumber = scan.rawContent;
+          print(randomNumber);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => VerifiedDevice(randomNumber)));
+        }
+      }
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
@@ -136,8 +141,8 @@ class VerifiedDevice extends StatelessWidget {
                           ),
                           onPressed: () {
                             (snapshot.data.registration) == "success"
-                                ? Navigator.popUntil(
-                                    context, ModalRoute.withName('/navigator'))
+                                ? Navigator.popAndPushNamed(
+                                    context, '/navigator')
                                 : Navigator.pop(context);
                           },
                           shape: RoundedRectangleBorder(

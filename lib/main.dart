@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
-
+//import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 import 'package:pill_dispensor/Login/sign_up.dart';
 import 'package:pill_dispensor/NavigatorPages/Home.dart';
 import 'package:pill_dispensor/NavigatorPages/Settings/Settings.dart';

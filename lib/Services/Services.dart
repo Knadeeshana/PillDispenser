@@ -111,6 +111,7 @@ Future<DeviceVerifier> registerDevice(deviceId) async {
   DeviceVerifier status = new DeviceVerifier.fromJson(jsonResponse);
   print(status.registration);
   print(status.availableEmail);
+  print(status.deviceId);
   return (status);
 }
 
@@ -381,5 +382,6 @@ Map<DateTime, String> decodeSchedule(String schedule) {
       scheduleInfo[scheduleTime] = schedule.substring(6 * i + 4, 6 * i + 6);
     }
   }
+  //print(scheduleInfo);
   return scheduleInfo;
 }
